@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Funko-Api.Test/Funko-Api.Test.csproj" />
+  <Project Path="Funko-Api/Funko-Api.csproj" />
+</Solution>
