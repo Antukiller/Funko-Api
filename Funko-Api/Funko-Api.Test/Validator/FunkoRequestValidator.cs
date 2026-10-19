@@ -1,625 +1,149 @@
-﻿namespace Funko_Api.Test.Validator;
+﻿using FluentValidation.TestHelper;
+using Funko_Api.Models;
+using Funko_Api.Validator;
 
-public class ProductoRequestValidatorTests
-{
-    private readonly ProductoRequestValidator _validator = new();
+namespace Funko_Api.Test.Validator;
 
-    #region Nombre Tests
+public class FunkoRequestValidatorTests {
+    private readonly FunkoRequestValidator _validator = new();
 
     [Test]
-    public void CreateAsync_ConNombreVacio_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
+    public void Validate_ConNombreVacio_TieneErrorDeNombre() {
+        var funko = CreateValidFunko();
+        funko.Name = " ";
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldHaveValidationErrorFor(x => x.Nombre)
-            .WithErrorMessage("El nombre es obligatorio");
+        result.ShouldHaveValidationErrorFor(item => item.Name)
+            .WithErrorMessage("Name is required.");
     }
 
     [Test]
-    public void CreateAsync_ConNombreMuyCorto_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "AB",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
+    public void Validate_ConNombreMayorA200Caracteres_TieneErrorDeNombre() {
+        var funko = CreateValidFunko();
+        funko.Name = new string('A', 201);
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldHaveValidationErrorFor(x => x.Nombre)
-            .WithErrorMessage("El nombre debe tener al menos 3 caracteres");
+        result.ShouldHaveValidationErrorFor(item => item.Name)
+            .WithErrorMessage("Name cannot exceed 200 characters.");
     }
 
     [Test]
-    public void CreateAsync_ConNombreMuyLargo_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = new string('A', 201),
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
+    public void Validate_ConNombreValido_NoTieneErrorDeNombre() {
+        var result = _validator.TestValidate(CreateValidFunko());
 
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Nombre)
-            .WithErrorMessage("El nombre no puede exceder 200 caracteres");
+        result.ShouldNotHaveValidationErrorFor(item => item.Name);
     }
 
     [Test]
-    public void CreateAsync_ConNombreValido_NoDeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "iPhone 15 Pro Max",
-            Precio = 999.99m,
-            Stock = 10,
-            CategoriaId = 1
+    public void Validate_ConFunkoNuevo_TieneErrorDeNombrePorDefectoVacio() {
+        var funko = new Funko {
+            Categoria = new Categoria { Name = "DC Comics" }
         };
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Nombre);
+        result.ShouldHaveValidationErrorFor(item => item.Name)
+            .WithErrorMessage("Name is required.");
     }
 
-    #endregion
+    [TestCase(0)]
+    [TestCase(-0.01)]
+    public void Validate_ConPrecioNoPositivo_TieneErrorDePrecio(decimal price) {
+        var funko = CreateValidFunko();
+        funko.Price = price;
 
-    #region Precio Tests
+        var result = _validator.TestValidate(funko);
 
-    [Test]
-    public void CreateAsync_ConPrecioCero_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 0,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Precio)
-            .WithErrorMessage("El precio debe ser mayor a 0");
+        result.ShouldHaveValidationErrorFor(item => item.Price)
+            .WithErrorMessage("Price must be greater than 0.");
     }
 
     [Test]
-    public void CreateAsync_ConPrecioNegativo_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = -10,
-            Stock = 5,
-            CategoriaId = 1
-        };
+    public void Validate_ConPrecioPositivo_NoTieneErrorDePrecio() {
+        var funko = CreateValidFunko();
+        funko.Price = 0.01m;
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldHaveValidationErrorFor(x => x.Precio)
-            .WithErrorMessage("El precio debe ser mayor a 0");
+        result.ShouldNotHaveValidationErrorFor(item => item.Price);
     }
 
     [Test]
-    public void CreateAsync_ConPrecioValido_NoDeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 99.99m,
-            Stock = 5,
-            CategoriaId = 1
-        };
+    public void Validate_ConStockNegativo_TieneErrorDeStock() {
+        var funko = CreateValidFunko();
+        funko.Stock = -1;
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Precio);
+        result.ShouldHaveValidationErrorFor(item => item.Stock)
+            .WithErrorMessage("Stock must be greater than or equal to 0.");
     }
 
-    #endregion
+    [TestCase(0)]
+    [TestCase(25)]
+    public void Validate_ConStockNoNegativo_NoTieneErrorDeStock(int stock) {
+        var funko = CreateValidFunko();
+        funko.Stock = stock;
 
-    #region Stock Tests
+        var result = _validator.TestValidate(funko);
 
-    [Test]
-    public void CreateAsync_ConStockNegativo_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = -5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Stock)
-            .WithErrorMessage("El stock no puede ser negativo");
+        result.ShouldNotHaveValidationErrorFor(item => item.Stock);
     }
 
     [Test]
-    public void CreateAsync_ConStockCero_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 0,
-            CategoriaId = 1
-        };
+    public void Validate_ConNombreDeCategoriaVacio_TieneErrorEnCategoria() {
+        var funko = CreateValidFunko();
+        funko.Categoria.Name = "";
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Stock);
+        result.ShouldHaveValidationErrorFor(item => item.Categoria.Name)
+            .WithErrorMessage("Name is required.");
     }
 
     [Test]
-    public void CreateAsync_ConStockPositivo_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 100,
-            CategoriaId = 1
-        };
+    public void Validate_ConNombreDeCategoriaMayorA200Caracteres_TieneErrorEnCategoria() {
+        var funko = CreateValidFunko();
+        funko.Categoria.Name = new string('A', 201);
 
-        var result = _validator.TestValidate(dto);
+        var result = _validator.TestValidate(funko);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Stock);
-    }
-
-    #endregion
-
-    #region CategoriaId Tests
-
-    [Test]
-    public void CreateAsync_ConCategoriaIdCero_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 0
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.CategoriaId)
-            .WithErrorMessage("Debe seleccionar una categoría válida");
+        result.ShouldHaveValidationErrorFor(item => item.Categoria.Name)
+            .WithErrorMessage("Name cannot exceed 200 characters.");
     }
 
     [Test]
-    public void CreateAsync_ConCategoriaIdNegativo_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = -1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.CategoriaId)
-            .WithErrorMessage("Debe seleccionar una categoría válida");
-    }
-
-    [Test]
-    public void CreateAsync_ConCategoriaIdValido_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.CategoriaId);
-    }
-
-    #endregion
-
-    #region Descripcion Tests
-
-    [Test]
-    public void CreateAsync_ConDescripcionMuyLarga_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = new string('A', 1001),
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Descripcion)
-            .WithErrorMessage("La descripción no puede exceder 1000 caracteres");
-    }
-
-    [Test]
-    public void CreateAsync_ConDescripcionVacia_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = "",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Descripcion);
-    }
-
-    #endregion
-
-    #region Imagen Tests
-
-    [Test]
-    public void CreateAsync_ConUrlInvalida_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1,
-            Imagen = "not-a-valid-url"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConUrlHttpValida_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1,
-            Imagen = "http://ejemplo.com/imagen.jpg"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConUrlHttpsValida_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1,
-            Imagen = "https://ejemplo.com/imagen.jpg"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConImagenVacia_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1,
-            Imagen = null
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    #endregion
-
-    #region DTO Completo Tests
-
-    [Test]
-    public void CreateAsync_ConDtoCompletoInvalido_DeberiaTenerMultiplesErrores()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "",
-            Descripcion = new string('A', 1001),
-            Precio = -10,
-            Stock = -5,
-            CategoriaId = 0,
-            Imagen = "invalid"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Nombre);
-        result.ShouldHaveValidationErrorFor(x => x.Descripcion);
-        result.ShouldHaveValidationErrorFor(x => x.Precio);
-        result.ShouldHaveValidationErrorFor(x => x.Stock);
-        result.ShouldHaveValidationErrorFor(x => x.CategoriaId);
-        result.ShouldHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConDtoCompletoValido_NoDeberiaTenerErrores()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "iPhone 15 Pro",
-            Descripcion = "El último iPhone de Apple",
-            Precio = 999.99m,
-            Stock = 50,
-            CategoriaId = 1,
-            Imagen = "https://ejemplo.com/iphone15.jpg"
-        };
-
-        var result = _validator.TestValidate(dto);
+    public void Validate_ConDatosValidos_NoTieneErrores() {
+        var result = _validator.TestValidate(CreateValidFunko());
 
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    #endregion
-
-    #region Casos Borde Adicionales
-
     [Test]
-    public void CreateAsync_ConNombreConCaracteresEspeciales_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Producto #1 - Deluxe Edition®",
-            Precio = 10,
+    public void Validate_ConDatosInvalidos_TieneErroresEnLasPropiedadesInvalidas() {
+        var funko = CreateValidFunko();
+        funko.Name = "";
+        funko.Price = 0;
+        funko.Stock = -1;
+        funko.Categoria.Name = "";
+
+        var result = _validator.TestValidate(funko);
+
+        result.ShouldHaveValidationErrorFor(item => item.Name);
+        result.ShouldHaveValidationErrorFor(item => item.Price);
+        result.ShouldHaveValidationErrorFor(item => item.Stock);
+        result.ShouldHaveValidationErrorFor(item => item.Categoria.Name);
+    }
+
+    private static Funko CreateValidFunko() {
+        return new Funko {
+            Id = 1,
+            Name = "Batman Classic",
+            Price = 19.99m,
             Stock = 5,
-            CategoriaId = 1
+            Categoria = new Categoria { Name = "DC Comics" }
         };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Nombre);
     }
-
-    [Test]
-    public void CreateAsync_ConNombreConEspacios_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = " producto con espacios ",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Nombre);
-    }
-
-    [Test]
-    public void CreateAsync_ConPrecioDecimal_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 0.01m,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Precio);
-    }
-
-    [Test]
-    public void CreateAsync_ConPrecioMuyAlto_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 9999999.99m,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Precio);
-    }
-
-    [Test]
-    public void CreateAsync_ConStockMuyAlto_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = int.MaxValue,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Stock);
-    }
-
-    [Test]
-    public void CreateAsync_ConCategoriaIdMuyAlto_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 999999999
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.CategoriaId);
-    }
-
-    [Test]
-    public void CreateAsync_ConUrlSinProtocolo_DeberiaTenerError()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1,
-            Imagen = "www.ejemplo.com/imagen.jpg"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConUrlConQueryString_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1,
-            Imagen = "https://ejemplo.com/imagen.jpg?width=100&height=200"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConDescripcionConSaltoDeLinea_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = "Primera línea\nSegunda línea\r\nTercera línea",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Descripcion);
-    }
-
-    [Test]
-    public void CreateAsync_ConDescripcionConCaracteresEspeciales_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = "Producto con acentos: áéíóúñÑ y símbolos: @#$%",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Descripcion);
-    }
-
-    [Test]
-    public void CreateAsync_ConDescripcionEnIngles_DeberiaPasar()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = "This is a product description in English with special chars: ñ, ü, ö",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 1
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Descripcion);
-    }
-
-    [Test]
-    public void CreateAsync_ConSoloErroresDeStock_DeberiaTenerErrorSoloEnStock()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = "A valid description",
-            Precio = 10,
-            Stock = -1,
-            CategoriaId = 1,
-            Imagen = "https://ejemplo.com/imagen.jpg"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.Stock);
-        result.ShouldNotHaveValidationErrorFor(x => x.Nombre);
-        result.ShouldNotHaveValidationErrorFor(x => x.Precio);
-        result.ShouldNotHaveValidationErrorFor(x => x.CategoriaId);
-        result.ShouldNotHaveValidationErrorFor(x => x.Descripcion);
-        result.ShouldNotHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    [Test]
-    public void CreateAsync_ConSoloErroresDeCategoria_DeberiaTenerErrorSoloEnCategoria()
-    {
-        var dto = new ProductoRequestDto
-        {
-            Nombre = "Test Product",
-            Descripcion = "A valid description",
-            Precio = 10,
-            Stock = 5,
-            CategoriaId = 0,
-            Imagen = "https://ejemplo.com/imagen.jpg"
-        };
-
-        var result = _validator.TestValidate(dto);
-
-        result.ShouldHaveValidationErrorFor(x => x.CategoriaId);
-        result.ShouldNotHaveValidationErrorFor(x => x.Nombre);
-        result.ShouldNotHaveValidationErrorFor(x => x.Precio);
-        result.ShouldNotHaveValidationErrorFor(x => x.Stock);
-        result.ShouldNotHaveValidationErrorFor(x => x.Descripcion);
-        result.ShouldNotHaveValidationErrorFor(x => x.Imagen);
-    }
-
-    #endregion
 }
