@@ -1,7 +1,10 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Funko_Api.Infrastructure;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+
+builder.Services.AddApplicationServices();
 
 builder.Services.ConfigureHttpJsonOptions(options => {
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
