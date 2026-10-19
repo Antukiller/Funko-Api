@@ -14,14 +14,14 @@ public static class FunkoMapper {
         funko.UpdatedAt,
         funko.IsDeleted);
 
-    public static Funko ToModel(this FunkoRequestDto dto, Categoria categoria) => new() {
+    public static Funko ToModel(this CreateFunkoDto dto, Categoria categoria) => new() {
         Name = dto.Name,
         Price = dto.Price,
         Stock = dto.Stock,
         Categoria = categoria
     };
 
-    public static Funko UpdateFrom(this Funko funko, FunkoRequestDto dto, Categoria categoria) {
+    public static Funko UpdateFrom(this Funko funko, UpdateFunkoDto dto, Categoria categoria) {
         funko.Name = dto.Name;
         funko.Price = dto.Price;
         funko.Stock = dto.Stock;
