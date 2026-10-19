@@ -14,6 +14,7 @@ public static class FunkoConfig {
         Config = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile(archivoConfiguracion, false, true)
+            .AddEnvironmentVariables()
             .Build();
     }
 
@@ -29,8 +30,11 @@ public static class FunkoConfig {
     public static string DbConnection =>
         RepositoryName.Equals("SQLite", StringComparison.OrdinalIgnoreCase)
             ? $"Data Source={Path.Combine(DataFolder, "funkos.db")}"
-            : Config.GetValue<string>("Repository:ConnectionString")
-              ?? throw new InvalidOperationException("Falta Repository:ConnectionString en el archivo JSON de producción.");
+            : Config.GetValue<string>("Repository:ConnectionString") is { } connectionString
+              && !string.IsNullOrWhiteSpace(connectionString)
+                ? connectionString
+                : throw new InvalidOperationException(
+                    "Falta la variable de entorno Repository__ConnectionString para la conexión de producción.");
     
     public static string DataFolder => Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory,

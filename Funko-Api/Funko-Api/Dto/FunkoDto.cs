@@ -16,12 +16,12 @@ public record FunkoDto(
 public record FunkoRequestDto {
     [Required(ErrorMessage = "Name is required.")]
     [MaxLength(200, ErrorMessage = "Name cannot exceed 200 characters.")]
-    public string Name { get; init; } = string.Empty;
     
+    public string Name { get; init; } = string.Empty;
     [Required(ErrorMessage = "Price is required.")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0.")]
-    public decimal Price { get; init; }
     
+    public decimal Price { get; init; }
     [Required(ErrorMessage = "Stock is required.")]
     [Range(0, int.MaxValue, ErrorMessage = "Stock must be greater than or equal to 0.")]
     public int Stock { get; init; }
