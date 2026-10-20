@@ -7,4 +7,6 @@ public interface ICategoriaRepository {
     Task<IReadOnlyList<Models.Categoria>> GetAllAsync();
 
     Task<Result<Models.Categoria, DomainError>> GetByIdAsync(long id);
+
+    Task<Result<Models.Categoria, DomainError>> GetByNameAsync(string name);
 }

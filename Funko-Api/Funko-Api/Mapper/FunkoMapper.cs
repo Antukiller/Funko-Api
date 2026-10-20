@@ -21,6 +21,13 @@ public static class FunkoMapper {
         Categoria = categoria
     };
 
+    public static Funko ToModel(this UpdateFunkoDto dto, Categoria categoria) => new() {
+        Name = dto.Name,
+        Price = dto.Price,
+        Stock = dto.Stock,
+        Categoria = categoria
+    };
+
     public static Funko UpdateFrom(this Funko funko, UpdateFunkoDto dto, Categoria categoria) {
         funko.Name = dto.Name;
         funko.Price = dto.Price;

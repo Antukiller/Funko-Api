@@ -22,4 +22,15 @@ public class CategoriaRepository(AppDbContext context) : ICategoriaRepository, I
             ? Result.Success<CategoriaModel, DomainError>(categoria)
             : Result.Failure<CategoriaModel, DomainError>(NotFound.FromId(id, "Categoría"));
     }
+
+    public async Task<Result<CategoriaModel, DomainError>> GetByNameAsync(string name) {
+        var categoria = await context.Categorias
+            .AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Name == name);
+
+        return categoria is not null
+            ? Result.Success<CategoriaModel, DomainError>(categoria)
+            : Result.Failure<CategoriaModel, DomainError>(
+                ValidationError.Create($"No existe la categoría '{name}'."));
+    }
 }
