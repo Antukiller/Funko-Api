@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {}
+    "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {
+    "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
+        "projectUniqueName": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
         "projectName": "Funko-Api",
-        "projectPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
-        "packagesPath": "C:\\Users\\Antukiller\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\obj\\",
+        "projectPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
+        "packagesPath": "C:\\Users\\antoi\\.nuget\\packages\\",
+        "outputPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Antukiller\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\antoi\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -24,7 +24,6 @@
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -43,7 +42,6 @@
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "CSharpFunctionalExtensions": {
@@ -65,7 +63,7 @@
             "Microsoft.DotNet.ILCompiler": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.1, )",
+              "version": "[10.0.13, )",
               "autoReferenced": true
             },
             "Microsoft.EntityFrameworkCore": {
@@ -79,7 +77,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.1, )",
+              "version": "[10.0.13, )",
               "autoReferenced": true
             },
             "Scrutor": {
@@ -105,7 +103,7 @@
           "downloadDependencies": [
             {
               "name": "runtime.win-x64.Microsoft.DotNet.ILCompiler",
-              "version": "[10.0.1, 10.0.1]"
+              "version": "[10.0.13, 10.0.13]"
             }
           ],
           "frameworkReferences": {
@@ -116,7 +114,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.113/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
