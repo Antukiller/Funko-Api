@@ -3284,7 +3284,6 @@
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
             "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {
@@ -3307,7 +3306,6 @@
     },
     "frameworks": {
       "net10.0": {
-        "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
           "FluentAssertions": {
@@ -3650,7 +3648,7 @@
       "code": "NU1903",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'SSH.NET' 2024.2.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-mggc-4xg6-vcxf",
+      "message": "El paquete \"SSH.NET\" 2024.2.0 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-mggc-4xg6-vcxf",
       "libraryId": "SSH.NET",
       "targetGraphs": [
         "net10.0"
@@ -3660,7 +3658,7 @@
       "code": "NU1903",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'SSH.NET' 2024.2.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-q939-rpr3-3284",
+      "message": "El paquete \"SSH.NET\" 2024.2.0 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-q939-rpr3-3284",
       "libraryId": "SSH.NET",
       "targetGraphs": [
         "net10.0"

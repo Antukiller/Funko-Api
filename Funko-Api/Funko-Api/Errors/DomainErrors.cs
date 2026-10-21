@@ -1,4 +1,6 @@
-﻿namespace Funko_Api.Errors;
+﻿using System.Collections.Generic;
+
+namespace Funko_Api.Errors;
 
 public sealed record NotFound(string Message) : DomainError(Message) {
     public static NotFound FromId(long id, string resource = "Recurso") =>

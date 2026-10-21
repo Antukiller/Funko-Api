@@ -1,3 +1,4 @@
+using System;
 using Funko_Api.Models;
 using Microsoft.EntityFrameworkCore;
 

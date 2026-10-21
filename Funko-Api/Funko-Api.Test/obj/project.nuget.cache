@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "fp9BXt8jck4=",
+  "dgSpecHash": "3CgyLoLsxxc=",
   "success": true,
   "projectFilePath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
   "expectedPackageFiles": [
@@ -65,7 +65,7 @@
     {
       "code": "NU1903",
       "level": "Warning",
-      "message": "Package 'SSH.NET' 2024.2.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-mggc-4xg6-vcxf",
+      "message": "El paquete \"SSH.NET\" 2024.2.0 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-mggc-4xg6-vcxf",
       "projectPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
       "warningLevel": 1,
       "filePath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
@@ -77,7 +77,7 @@
     {
       "code": "NU1903",
       "level": "Warning",
-      "message": "Package 'SSH.NET' 2024.2.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-q939-rpr3-3284",
+      "message": "El paquete \"SSH.NET\" 2024.2.0 tiene una vulnerabilidad de gravedad alta conocida, https://github.com/advisories/GHSA-q939-rpr3-3284",
       "projectPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
       "warningLevel": 1,
       "filePath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",

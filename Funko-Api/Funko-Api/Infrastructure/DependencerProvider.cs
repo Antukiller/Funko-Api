@@ -1,4 +1,5 @@
 ﻿using Funko_Api.Infrastructure.Interface;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Funko_Api.Infrastructure;
 

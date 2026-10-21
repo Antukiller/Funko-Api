@@ -1,4 +1,9 @@
-﻿namespace Funko_Api.Config;
+﻿using System;
+using System.IO;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
+
+namespace Funko_Api.Config;
 
 
 public static class FunkoConfig {

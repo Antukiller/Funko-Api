@@ -1,48 +1,6 @@
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.csproj.AssemblyReference.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\rpswa.dswa.cache.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.AssemblyInfoInputs.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.AssemblyInfo.cs
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.csproj.CoreCompileInputs.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.sourcelink.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\appsettings.Development.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\appsettings.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\appsettings.Production.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Funko-Api.staticwebassets.endpoints.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Funko-Api.exe
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Funko-Api.deps.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Funko-Api.runtimeconfig.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Funko-Api.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Funko-Api.pdb
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\CSharpFunctionalExtensions.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\FluentAssertions.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\FluentValidation.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Abstractions.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Microsoft.EntityFrameworkCore.Relational.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Microsoft.Extensions.DependencyModel.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Microsoft.OpenApi.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Scrutor.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Serilog.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\Serilog.Sinks.File.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\rjimswa.dswa.cache.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\scopedcss\bundle\Funko-Api.styles.css
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\staticwebassets.build.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\staticwebassets.build.json.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\staticwebassets.development.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\staticwebassets.build.endpoints.json
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\swae.build.ex.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.csproj.Up2Date
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\refint\Funko-Api.dll
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.pdb
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.genruntimeconfig.cache
-C:\Users\Antukiller\RiderProjects\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\ref\Funko-Api.dll
+D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.dll
+D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\refint\Funko-Api.dll
+D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.pdb
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\appsettings.Development.json
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\appsettings.json
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\bin\Debug\net10.0\appsettings.Production.json
@@ -83,8 +41,5 @@ D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\staticwebasse
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\staticwebassets.build.endpoints.json
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\swae.build.ex.cache
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.csproj.Up2Date
-D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.dll
-D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\refint\Funko-Api.dll
-D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.pdb
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\Funko-Api.genruntimeconfig.cache
 D:\Ejercicios 2DAW\Funko-Api\Funko-Api\Funko-Api\obj\Debug\net10.0\ref\Funko-Api.dll

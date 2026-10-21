@@ -1,4 +1,6 @@
-﻿namespace Funko_Api.Errors;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Funko_Api.Errors;
 
 public static class DomainErrorExtensions {
     public static IResult ToHttpResult(this DomainError error) => error switch {
