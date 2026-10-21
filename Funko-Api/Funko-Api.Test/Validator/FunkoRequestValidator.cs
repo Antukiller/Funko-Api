@@ -1,4 +1,4 @@
-﻿using FluentValidation.TestHelper;
+﻿using FluentAssertions;
 using Funko_Api.Models;
 using Funko_Api.Validator;
 
@@ -12,10 +12,11 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Name = " ";
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Name)
-            .WithErrorMessage("Name is required.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == nameof(Funko.Name) &&
+            error.ErrorMessage == "Name is required.");
     }
 
     [Test]
@@ -23,17 +24,18 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Name = new string('A', 201);
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Name)
-            .WithErrorMessage("Name cannot exceed 200 characters.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == nameof(Funko.Name) &&
+            error.ErrorMessage == "Name cannot exceed 200 characters.");
     }
 
     [Test]
     public void Validate_ConNombreValido_NoTieneErrorDeNombre() {
-        var result = _validator.TestValidate(CreateValidFunko());
+        var result = _validator.Validate(CreateValidFunko());
 
-        result.ShouldNotHaveValidationErrorFor(item => item.Name);
+        result.Errors.Should().NotContain(error => error.PropertyName == nameof(Funko.Name));
     }
 
     [Test]
@@ -42,10 +44,11 @@ public class FunkoRequestValidatorTests {
             Categoria = new Categoria { Name = "DC Comics" }
         };
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Name)
-            .WithErrorMessage("Name is required.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == nameof(Funko.Name) &&
+            error.ErrorMessage == "Name is required.");
     }
 
     [TestCase(0)]
@@ -54,10 +57,11 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Price = price;
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Price)
-            .WithErrorMessage("Price must be greater than 0.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == nameof(Funko.Price) &&
+            error.ErrorMessage == "Price must be greater than 0.");
     }
 
     [Test]
@@ -65,9 +69,9 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Price = 0.01m;
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldNotHaveValidationErrorFor(item => item.Price);
+        result.Errors.Should().NotContain(error => error.PropertyName == nameof(Funko.Price));
     }
 
     [Test]
@@ -75,10 +79,11 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Stock = -1;
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Stock)
-            .WithErrorMessage("Stock must be greater than or equal to 0.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == nameof(Funko.Stock) &&
+            error.ErrorMessage == "Stock must be greater than or equal to 0.");
     }
 
     [TestCase(0)]
@@ -87,9 +92,9 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Stock = stock;
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldNotHaveValidationErrorFor(item => item.Stock);
+        result.Errors.Should().NotContain(error => error.PropertyName == nameof(Funko.Stock));
     }
 
     [Test]
@@ -97,10 +102,11 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Categoria.Name = "";
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Categoria.Name)
-            .WithErrorMessage("Name is required.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == "Categoria.Name" &&
+            error.ErrorMessage == "Name is required.");
     }
 
     [Test]
@@ -108,17 +114,18 @@ public class FunkoRequestValidatorTests {
         var funko = CreateValidFunko();
         funko.Categoria.Name = new string('A', 201);
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Categoria.Name)
-            .WithErrorMessage("Name cannot exceed 200 characters.");
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == "Categoria.Name" &&
+            error.ErrorMessage == "Name cannot exceed 200 characters.");
     }
 
     [Test]
     public void Validate_ConDatosValidos_NoTieneErrores() {
-        var result = _validator.TestValidate(CreateValidFunko());
+        var result = _validator.Validate(CreateValidFunko());
 
-        result.ShouldNotHaveAnyValidationErrors();
+        result.Errors.Should().BeEmpty();
     }
 
     [Test]
@@ -129,12 +136,13 @@ public class FunkoRequestValidatorTests {
         funko.Stock = -1;
         funko.Categoria.Name = "";
 
-        var result = _validator.TestValidate(funko);
+        var result = _validator.Validate(funko);
 
-        result.ShouldHaveValidationErrorFor(item => item.Name);
-        result.ShouldHaveValidationErrorFor(item => item.Price);
-        result.ShouldHaveValidationErrorFor(item => item.Stock);
-        result.ShouldHaveValidationErrorFor(item => item.Categoria.Name);
+        result.Errors.Select(error => error.PropertyName).Should().BeEquivalentTo(
+            nameof(Funko.Name),
+            nameof(Funko.Price),
+            nameof(Funko.Stock),
+            "Categoria.Name");
     }
 
     private static Funko CreateValidFunko() {

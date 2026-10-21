@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Funko_Api.Data;
 using Funko_Api.Errors;
 using Funko_Api.Models;
@@ -39,48 +40,48 @@ public class FunkoRepositoryTests {
 
         var result = await _repository.CreateAsync(funko);
 
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.Id, Is.GreaterThan(0));
-        Assert.That(result.Value.Name, Is.EqualTo("Funko de prueba"));
-        Assert.That(result.Value.Categoria.Id, Is.EqualTo(2));
-        Assert.That(result.Value.IsDeleted, Is.False);
-        Assert.That(result.Value.CreatedAt.Kind, Is.EqualTo(DateTimeKind.Utc));
-        Assert.That(result.Value.UpdatedAt, Is.EqualTo(result.Value.CreatedAt));
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Id.Should().BePositive();
+        result.Value.Name.Should().Be("Funko de prueba");
+        result.Value.Categoria.Id.Should().Be(2);
+        result.Value.IsDeleted.Should().BeFalse();
+        result.Value.CreatedAt.Kind.Should().Be(DateTimeKind.Utc);
+        result.Value.UpdatedAt.Should().Be(result.Value.CreatedAt);
     }
 
     [Test]
     public async Task CreateAsync_ConCategoriaInexistente_RetornaNotFound() {
         var result = await _repository.CreateAsync(CrearFunko("Funko inválido", 999));
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.TypeOf<NotFound>());
-        Assert.That(result.Error.Message, Does.Contain("999"));
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
+        result.Error.Message.Should().Contain("999");
     }
 
     [Test]
     public async Task GetAllAsync_SinFiltros_RetornaFunkosConCategoria() {
         var funkos = await _repository.GetAllAsync();
 
-        Assert.That(funkos, Has.Count.EqualTo(5));
-        Assert.That(funkos.All(funko => funko.Categoria is not null), Is.True);
+        funkos.Should().HaveCount(5);
+        funkos.Should().OnlyContain(funko => funko.Categoria != null);
     }
 
     [Test]
     public async Task GetByIdAsync_CuandoExiste_RetornaFunko() {
         var result = await _repository.GetByIdAsync(1);
 
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.Name, Is.EqualTo("Naruto Uzumaki"));
-        Assert.That(result.Value.Categoria.Name, Is.EqualTo("Anime"));
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Name.Should().Be("Naruto Uzumaki");
+        result.Value.Categoria.Name.Should().Be("Anime");
     }
 
     [Test]
     public async Task GetByIdAsync_CuandoNoExiste_RetornaNotFound() {
         var result = await _repository.GetByIdAsync(999);
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.TypeOf<NotFound>());
-        Assert.That(result.Error.Message, Does.Contain("999"));
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
+        result.Error.Message.Should().Contain("999");
     }
 
     [Test]
@@ -89,30 +90,30 @@ public class FunkoRepositoryTests {
 
         var result = await _repository.UpdateAsync(1, funko);
 
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.Id, Is.EqualTo(1));
-        Assert.That(result.Value.Name, Is.EqualTo("Funko actualizado"));
-        Assert.That(result.Value.Price, Is.EqualTo(19.99m));
-        Assert.That(result.Value.Stock, Is.EqualTo(3));
-        Assert.That(result.Value.Categoria.Id, Is.EqualTo(2));
-        Assert.That(result.Value.UpdatedAt.Kind, Is.EqualTo(DateTimeKind.Utc));
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Id.Should().Be(1);
+        result.Value.Name.Should().Be("Funko actualizado");
+        result.Value.Price.Should().Be(19.99m);
+        result.Value.Stock.Should().Be(3);
+        result.Value.Categoria.Id.Should().Be(2);
+        result.Value.UpdatedAt.Kind.Should().Be(DateTimeKind.Utc);
     }
 
     [Test]
     public async Task UpdateAsync_CuandoNoExiste_RetornaNotFound() {
         var result = await _repository.UpdateAsync(999, CrearFunko("Funko", 1));
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.TypeOf<NotFound>());
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
     }
 
     [Test]
     public async Task UpdateAsync_CuandoCategoriaNoExiste_RetornaNotFound() {
         var result = await _repository.UpdateAsync(1, CrearFunko("Funko", 999));
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.TypeOf<NotFound>());
-        Assert.That(result.Error.Message, Does.Contain("999"));
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
+        result.Error.Message.Should().Contain("999");
     }
 
     [Test]
@@ -122,24 +123,25 @@ public class FunkoRepositoryTests {
 
         var result = await _repository.UpdateAsync(1, funko);
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.TypeOf<NotFound>());
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
     }
 
     [Test]
     public async Task DeleteAsync_CuandoExiste_BorraLogicamente() {
         var deleted = await _repository.DeleteAsync(1);
 
-        Assert.That(deleted, Is.True);
-        Assert.That((await _repository.GetByIdAsync(1)).IsFailure, Is.True);
-        Assert.That(await _context.Funkos.IgnoreQueryFilters().AnyAsync(funko => funko.Id == 1 && funko.IsDeleted), Is.True);
+        deleted.Should().BeTrue();
+        (await _repository.GetByIdAsync(1)).IsFailure.Should().BeTrue();
+        (await _context.Funkos.IgnoreQueryFilters()
+            .AnyAsync(funko => funko.Id == 1 && funko.IsDeleted)).Should().BeTrue();
     }
 
     [Test]
     public async Task DeleteAsync_CuandoNoExiste_RetornaFalse() {
         var deleted = await _repository.DeleteAsync(999);
 
-        Assert.That(deleted, Is.False);
+        deleted.Should().BeFalse();
     }
 
     private static Funko CrearFunko(string name, long categoriaId) => new() {

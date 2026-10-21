@@ -1,4 +1,6 @@
-﻿namespace Funko_Api.Test;
+﻿using FluentAssertions;
+
+namespace Funko_Api.Test;
 
 public class Tests {
     [SetUp]
@@ -7,6 +9,6 @@ public class Tests {
 
     [Test]
     public void Test1() {
-        Assert.Pass();
+        true.Should().BeTrue();
     }
 }

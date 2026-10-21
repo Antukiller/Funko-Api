@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Funko_Api.Data;
 using Funko_Api.Errors;
 using Funko_Api.Repositories.Categoria;
@@ -36,27 +37,26 @@ public class CategoriaRepositoryTests {
     public async Task GetAllAsync_ConCategoriasSembradas_RetornaTodas() {
         var categorias = await _repository.GetAllAsync();
 
-        Assert.That(categorias, Has.Count.EqualTo(3));
-        Assert.That(categorias.Select(categoria => categoria.Name),
-            Is.EquivalentTo(new[] { "Anime", "Videojuegos", "Cómics" }));
+        categorias.Should().HaveCount(3);
+        categorias.Select(categoria => categoria.Name)
+            .Should().BeEquivalentTo(new[] { "Anime", "Videojuegos", "Cómics" });
     }
 
     [Test]
     public async Task GetByIdAsync_CuandoExiste_RetornaCategoria() {
         var result = await _repository.GetByIdAsync(1);
 
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Value.Id, Is.EqualTo(1));
-        Assert.That(result.Value.Name, Is.EqualTo("Anime"));
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Id.Should().Be(1);
+        result.Value.Name.Should().Be("Anime");
     }
 
     [Test]
     public async Task GetByIdAsync_CuandoNoExiste_RetornaNotFound() {
         var result = await _repository.GetByIdAsync(999);
 
-        Assert.That(result.IsFailure, Is.True);
-        Assert.That(result.Error, Is.TypeOf<NotFound>());
-        Assert.That(result.Error.Message, Does.Contain("Categoría"));
-        Assert.That(result.Error.Message, Does.Contain("999"));
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
+        result.Error.Message.Should().Contain("Categoría").And.Contain("999");
     }
 }
