@@ -63,7 +63,7 @@
           "build/Microsoft.AspNetCore.OpenApi.targets": {}
         }
       },
-      "Microsoft.DotNet.ILCompiler/10.0.13": {
+      "Microsoft.DotNet.ILCompiler/10.0.1": {
         "type": "package",
         "build": {
           "build/Microsoft.DotNet.ILCompiler.props": {}
@@ -137,7 +137,7 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
-      "Microsoft.NET.ILLink.Tasks/10.0.13": {
+      "Microsoft.NET.ILLink.Tasks/10.0.1": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
@@ -282,10 +282,10 @@
         "microsoft.aspnetcore.openapi.nuspec"
       ]
     },
-    "Microsoft.DotNet.ILCompiler/10.0.13": {
-      "sha512": "MnT222WlxhelguLZTQx9soBHKW7TeY6A9YUwVaprjUd+ARlhLAkfsXGFNX9w6kRq89/yxUcAQ/lzvmgndSFfOw==",
+    "Microsoft.DotNet.ILCompiler/10.0.1": {
+      "sha512": "339VHcUMA2iDrkLGaqjSwn25S9lmus/+Iqg5Hz2LDPhsX5a5GbdQZ2f/f6HMz/uGGWtUGpsusqUvW5L3fx36VA==",
       "type": "package",
-      "path": "microsoft.dotnet.ilcompiler/10.0.13",
+      "path": "microsoft.dotnet.ilcompiler/10.0.1",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -303,7 +303,7 @@
         "build/NativeAOT.natvis",
         "build/WindowsAPIs.txt",
         "build/findvcvarsall.bat",
-        "microsoft.dotnet.ilcompiler.10.0.13.nupkg.sha512",
+        "microsoft.dotnet.ilcompiler.10.0.1.nupkg.sha512",
         "microsoft.dotnet.ilcompiler.nuspec",
         "runtime.json",
         "tools/netstandard/ILCompiler.Build.Tasks.deps.json",
@@ -400,10 +400,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/10.0.13": {
-      "sha512": "40yrBMsLEcjixBR4G+FiUaBPvxXIPSKJ2OgSrbOZcmSDBda4Sb0k7BWrfDpIvn3IvvDzwOL/tEPa6gDQfh6aRw==",
+    "Microsoft.NET.ILLink.Tasks/10.0.1": {
+      "sha512": "ISahzLHsHY7vrwqr2p1YWZ+gsxoBRtH7gWRDK8fDUst9pp2He0GiesaqEfeX0V8QMCJM3eNEHGGpnIcPjFo2NQ==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/10.0.13",
+      "path": "microsoft.net.illink.tasks/10.0.1",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -416,7 +416,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.10.0.13.nupkg.sha512",
+        "microsoft.net.illink.tasks.10.0.1.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net/ILLink.Tasks.deps.json",
         "tools/net/ILLink.Tasks.dll",
@@ -546,28 +546,28 @@
       "FluentAssertions >= 8.11.0",
       "FluentValidation >= 12.2.0",
       "Microsoft.AspNetCore.OpenApi >= 10.0.13",
-      "Microsoft.DotNet.ILCompiler >= 10.0.13",
+      "Microsoft.DotNet.ILCompiler >= 10.0.1",
       "Microsoft.EntityFrameworkCore >= 10.0.13",
       "Microsoft.EntityFrameworkCore.Relational >= 10.0.13",
-      "Microsoft.NET.ILLink.Tasks >= 10.0.13",
+      "Microsoft.NET.ILLink.Tasks >= 10.0.1",
       "Scrutor >= 6.1.0",
       "Serilog.Sinks.File >= 8.0.0-nblumhardt-02322"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\antoi\\.nuget\\packages\\": {}
+    "C:\\Users\\Antukiller\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
+      "projectUniqueName": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
       "projectName": "Funko-Api",
-      "projectPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
-      "packagesPath": "C:\\Users\\antoi\\.nuget\\packages\\",
-      "outputPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\obj\\",
+      "projectPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj",
+      "packagesPath": "C:\\Users\\Antukiller\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\antoi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\Antukiller\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -618,7 +618,7 @@
           "Microsoft.DotNet.ILCompiler": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.13, )",
+            "version": "[10.0.1, )",
             "autoReferenced": true
           },
           "Microsoft.EntityFrameworkCore": {
@@ -632,7 +632,7 @@
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[10.0.13, )",
+            "version": "[10.0.1, )",
             "autoReferenced": true
           },
           "Scrutor": {
@@ -658,7 +658,7 @@
         "downloadDependencies": [
           {
             "name": "runtime.win-x64.Microsoft.DotNet.ILCompiler",
-            "version": "[10.0.13, 10.0.13]"
+            "version": "[10.0.1, 10.0.1]"
           }
         ],
         "frameworkReferences": {
@@ -669,7 +669,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.113/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
