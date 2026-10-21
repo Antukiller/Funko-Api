@@ -3262,19 +3262,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Antukiller\\.nuget\\packages\\": {}
+    "C:\\Users\\antoi\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
+      "projectUniqueName": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
       "projectName": "Funko-Api.Test",
-      "projectPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
-      "packagesPath": "C:\\Users\\Antukiller\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api.Test\\obj\\",
+      "projectPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\Funko-Api.Test.csproj",
+      "packagesPath": "C:\\Users\\antoi\\.nuget\\packages\\",
+      "outputPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api.Test\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Antukiller\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\antoi\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -3287,8 +3287,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {
-              "projectPath": "C:\\Users\\Antukiller\\RiderProjects\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj"
+            "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj": {
+              "projectPath": "D:\\Ejercicios 2DAW\\Funko-Api\\Funko-Api\\Funko-Api\\Funko-Api.csproj"
             }
           }
         }
@@ -3367,7 +3367,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.113/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
