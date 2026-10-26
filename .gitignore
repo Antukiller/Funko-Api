@@ -1,0 +1,68 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Test results
+TestResults/
+*.trx
+*.testResults.xml
+
+# Coverage
+[Cc]overage/
+
+# Visual Studio cache/options directory
+.vs/
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Base de datos local (SQLite en desarrollo)
+*.db
+*.db-shm
+*.db-wal
+
+# Environment variables (secrets)
+.env
+.env.local
+.env.*.local
+
+# Others
+.DS_Store
+Thumbs.db
+
+# Windows null device issue
+nul
