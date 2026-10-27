@@ -27,13 +27,4 @@ public static class FunkoMapper {
         Stock = dto.Stock,
         Categoria = categoria
     };
-
-    public static Funko UpdateFrom(this Funko funko, UpdateFunkoDto dto, Categoria categoria) {
-        funko.Name = dto.Name;
-        funko.Price = dto.Price;
-        funko.Stock = dto.Stock;
-        funko.Categoria = categoria;
-        funko.UpdatedAt = DateTime.UtcNow;
-        return funko;
-    }
 }

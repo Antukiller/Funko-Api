@@ -5,7 +5,7 @@
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/dotnet/csharp/)
 [![EF Core](https://img.shields.io/badge/EF%20Core-10-blue)](https://docs.microsoft.com/ef/core/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
-[![Tests](https://img.shields.io/badge/tests-89%20passing-brightgreen)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-81%20passing-brightgreen)](#-testing)
 
 **API RESTful para gestionar un catálogo de Funkos**, desarrollada como práctica 3
 de la asignatura *Desarrollo Web en Entornos Servidor* (DAW).
@@ -30,7 +30,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 - ✅ **Validación**: FluentValidation en DTOs y en el modelo de dominio.
 - ⚠️ **Errores de dominio**: `NotFound` y `ValidationError` traducidos a Problem Details.
 - 🐘 **Persistencia**: EF Core 10 + PostgreSQL 17 con migraciones aplicadas al arrancar.
-- 🧪 **Testing**: 89 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
+- 🧪 **Testing**: 81 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
 
 ## 🛠️ Tecnologías
 
@@ -206,10 +206,10 @@ dotnet test --filter "FullyQualifiedName!~Postgre"
 
 | Tipo | Cantidad | Tecnología |
 |---|---|---|
-| Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 78 | NUnit, Moq, FluentAssertions |
+| Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 70 | NUnit, Moq, FluentAssertions |
 | Integración (repositorio contra PostgreSQL real) | 11 | Testcontainers |
 
-Cobertura actual de los 89 tests:
+Cobertura actual de los 81 tests:
 
 - `FunkoServiceTests` y `CategoriaServiceTests`: reglas y propagación de errores.
 - `CreateFunkoValidatorTests` / `UpdateFunkoValidatorTests`: validaciones de DTO.
@@ -336,7 +336,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 ## ✅ Checklist de la rúbrica — Práctica 3
 
 > **Última revisión:** 2026-10-27 · **Checkpoint:** fase 9
-> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (89/89).
+> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (81/81).
 >
 > **Leyenda:** ✅ cumple · 🟡 parcial / no conforme · ❌ no existe · ❓ no verificable
 > **Prioridad:** **P0** bloqueante · **P1** correctness · **P2** estilo · **P3** flujo de trabajo
@@ -351,12 +351,12 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 0.4 | README con uso, tests, Docker y justificación | ✅ | Este documento | — |
 | 0.5 | `docker compose up` levanta API + BD | ❌ | Fase 12 | Pend. |
 | 0.6 | Documentación en `/swagger` | ❌ | Solo OpenAPI JSON en `/openapi/v1.json` | P1 |
-| 0.7 | `dotnet test` en verde | ✅ | 89/89 | — |
+| 0.7 | `dotnet test` en verde | ✅ | 81/81 | — |
 | 0.8 | `dotnet build` sin errores | ✅ | 0 errores | — |
 | 0.9 | `bin/` y `obj/` fuera del repo (`.gitignore`) | ✅ | `.gitignore` + `git rm --cached` | — |
 | 0.10 | `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig` | ❌ | No existen | P2 |
 | 0.11 | Carpeta `doc/` con guías numeradas | ❌ | No existe | P2 |
-| 0.12 | Sin código muerto | ❌ | `FunkoConfig`, `UpdateFrom`, `FunkoPatchRequestDto`, `UnitTest1` | P1 |
+| 0.12 | Sin código muerto | ✅ | Eliminados `FunkoConfig`, `UpdateFrom`, `FunkoPatchRequestDto` y `UnitTest1` | — |
 
 ### 1. Define tu recurso
 
@@ -423,12 +423,12 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | # | Requisito | Estado | Evidencia | Prio |
 |---|---|---|---|---|
 | 7.1 | `CreateFunkoDto`, `UpdateFunkoDto`, `FunkoDto` | ✅ | `Dto/` | — |
-| 7.2 | **Data Annotations** | ❌ | Solo FluentValidation | P1 |
+| 7.2 | **Data Annotations** | ✅ | Anotaciones en los DTOs + `InvalidModelStateResponseFactory` (400 en español con `traceId`); FluentValidation en el servicio | — |
 | 7.3 | Validador de dominio | ✅ | `FunkoRequestValidator` (duplica reglas) | — |
 | 7.4 | Mapeo con métodos de extensión | ✅ | `Mapper/FunkoMapper.cs` | — |
 | 7.5 | Longitudes BD == validator | ✅ | `HasMaxLength(200)` en BD y 200 en validadores (migración `AmpliarLongitudNombreFunko`) | — |
 | 7.6 | Mensajes de validación en español | ✅ | "El nombre es obligatorio.", "El stock no puede ser negativo."... | — |
-| 7.7 | Sin DTOs muertos | ❌ | `FunkoPatchRequestDto` + 7 tests, el endpoint no lo usa | P1 |
+| 7.7 | Sin DTOs muertos | ✅ | `FunkoPatchRequestDto` y sus 7 tests eliminados | — |
 | 7.8 | `FunkoDto` no expone `IsDeleted` | ❌ | Siempre `false` por query filter | P2 |
 
 ### 8. Configuración y logs
@@ -438,7 +438,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 8.1 | `appsettings.json` + perfiles | 🟡 | `ConnectionStrings` sí; faltan `Jwt` y `Serilog` | P1 |
 | 8.2 | Serilog consola + fichero | ❌ | Paquete instalado, **sin configurar** | P1 |
 | 8.3 | Log estructurado de operaciones CRUD | 🟡 | `ILogger` con placeholders, sin sink de fichero | P1 |
-| 8.4 | Config por `IConfiguration` en extension methods | ❌ | `FunkoConfig` estático y **sin usar** | P1 |
+| 8.4 | Config por `IConfiguration` en extension methods | ✅ | `DatabaseConfig` recibe `builder.Configuration`; sin configuración estática | — |
 | 8.5 | Sin secretos ni paquetes en preview | 🟡 | `Serilog.Sinks.File 8.0.0-nblumhardt-02322` | P2 |
 
 ### 9. Persistencia real
@@ -509,7 +509,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 **P0 — bloqueantes (cerrado ✅)**
 
 - [x] Arreglar `CS1061` con `ICategoriaService`
-- [x] `dotnet build` en verde y `dotnet test` ejecutando (89/89)
+- [x] `dotnet build` en verde y `dotnet test` ejecutando (81/81)
 - [x] Paquete `Npgsql.EntityFrameworkCore.PostgreSQL` en la API
 - [x] `Infrastructure/DatabaseConfig.cs` + `AddDbContext` + `ConnectionStrings`
 - [x] Migración `InitialCreate` y aplicación al arrancar
@@ -519,15 +519,15 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 **P1 — correctness (dos sesiones)**
 
-- [ ] Repositorios devuelven entidad/`null`; el servicio decide el error
-- [ ] Una sola extensión `ToHttpResult<T>()`
-- [ ] `HasMaxLength` == `MaximumLength`
-- [ ] `ConflictError` (409) y `BusinessRuleError` (422)
-- [ ] `GlobalExceptionHandler` con Problem Details + `traceId`
+- [x] Repositorios devuelven entidad/`null`; el servicio decide el error
+- [x] Una sola extensión `ToHttpResult<T>()`
+- [x] `HasMaxLength` == `MaximumLength`
+- [x] `ConflictError` (409) y `BusinessRuleError` (422)
+- [x] `GlobalExceptionHandler` con Problem Details + `traceId`
 - [ ] Serilog real (`Serilog.AspNetCore`, consola + fichero)
-- [ ] Borrar `FunkoConfig`, `ToHttpResult`, `UpdateFrom`, `UnitTest1`
-- [ ] Implementar el PATCH con `FunkoPatchRequestDto` (o borrarlo)
-- [ ] Corregir el `IsDeleted` del update
+- [x] Borrar `FunkoConfig`, `UpdateFrom`, `UnitTest1`
+- [x] Borrar `FunkoPatchRequestDto` (el PATCH usa DTOs tipados)
+- [x] Corregir el `IsDeleted` del update
 - [ ] `public partial class Program;` + test de integración
 
 **P2 — estilo (tres sesiones)**

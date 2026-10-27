@@ -12,10 +12,3 @@ public record FunkoDto(
     DateTime UpdatedAt,
     bool IsDeleted
 );
-
-public record FunkoPatchRequestDto {
-    public string? Name { get; init; }
-    public decimal? Price { get; init; }
-    public int? Stock { get; init; }
-    public string? CategoriaName { get; init; }
-}
