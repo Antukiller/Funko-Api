@@ -78,8 +78,8 @@ namespace Funko_Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<decimal>("Price")
                         .HasPrecision(20, 2)

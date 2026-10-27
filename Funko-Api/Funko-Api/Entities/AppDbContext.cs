@@ -15,7 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
             e.Property(x => x.Name)
                 .IsRequired()
-                .HasMaxLength(20);
+                .HasMaxLength(200);
             e.Property(x => x.Price)
                 .IsRequired()
                 .HasPrecision(20, 2);

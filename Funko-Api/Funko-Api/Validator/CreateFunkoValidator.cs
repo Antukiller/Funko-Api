@@ -9,19 +9,19 @@ public class CreateFunkoValidator : AbstractValidator<CreateFunkoDto>, IScopedSe
         RuleFor(request => request.Name)
             .Cascade(CascadeMode.Stop)
             .Must(name => !string.IsNullOrWhiteSpace(name))
-            .WithMessage("Name is required.")
-            .MaximumLength(200).WithMessage("Name cannot exceed 200 characters.");
+            .WithMessage("El nombre es obligatorio.")
+            .MaximumLength(200).WithMessage("El nombre no puede superar los 200 caracteres.");
 
         RuleFor(request => request.Price)
-            .GreaterThan(0).WithMessage("Price must be greater than 0.");
+            .GreaterThan(0).WithMessage("El precio debe ser mayor que 0.");
 
         RuleFor(request => request.Stock)
-            .GreaterThanOrEqualTo(0).WithMessage("Stock must be greater than or equal to 0.");
+            .GreaterThanOrEqualTo(0).WithMessage("El stock no puede ser negativo.");
 
         RuleFor(request => request.CategoriaName)
             .Cascade(CascadeMode.Stop)
             .Must(name => !string.IsNullOrWhiteSpace(name))
-            .WithMessage("Category name is required.")
-            .MaximumLength(200).WithMessage("Category name cannot exceed 200 characters.");
+            .WithMessage("El nombre de la categoría es obligatorio.")
+            .MaximumLength(200).WithMessage("El nombre de la categoría no puede superar los 200 caracteres.");
     }
 }
