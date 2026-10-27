@@ -3,7 +3,13 @@ using Funko_Api.Dtos;
 
 namespace Funko_Api.Validators;
 
+/// <summary>
+/// Validador del DTO de actualización de funkos.
+/// </summary>
 public class UpdateFunkoValidator : AbstractValidator<UpdateFunkoDto> {
+    /// <summary>
+    /// Define las reglas de validación de una actualización.
+    /// </summary>
     public UpdateFunkoValidator() {
         RuleFor(request => request.Name)
             .Cascade(CascadeMode.Stop)

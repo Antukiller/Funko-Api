@@ -4,10 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Funko_Api.Data;
 
+/// <summary>
+/// Contexto de Entity Framework Core para la base de datos de funkos.
+/// </summary>
+/// <param name="options">Opciones de configuración del contexto.</param>
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) {
+    /// <summary>Funkos del catálogo.</summary>
     public DbSet<Funko> Funkos { get; set; }
+
+    /// <summary>Categorías de funkos.</summary>
     public DbSet<Categoria> Categorias { get; set; }
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.Entity<Funko>(e => {
             e.ToTable("funko");

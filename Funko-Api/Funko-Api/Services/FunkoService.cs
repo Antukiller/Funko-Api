@@ -9,6 +9,15 @@ using Funko_Api.Repositories.Categoria;
 
 namespace Funko_Api.Services;
 
+/// <summary>
+/// Servicio de negocio para la gestión de funkos.
+/// </summary>
+/// <param name="funkoRepository">Repositorio de funkos.</param>
+/// <param name="categoriaRepository">Repositorio de categorías.</param>
+/// <param name="funkoValidator">Validador de la entidad.</param>
+/// <param name="createValidator">Validador del DTO de creación.</param>
+/// <param name="updateValidator">Validador del DTO de actualización.</param>
+/// <param name="logger">Logger del servicio.</param>
 public class FunkoService(
     IFunkoRepository funkoRepository,
     ICategoriaRepository categoriaRepository,
@@ -17,18 +26,21 @@ public class FunkoService(
     IValidator<UpdateFunkoDto> updateValidator,
     ILogger<FunkoService> logger
 ) : IFunkoService {
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<FunkoDto>> GetAllFunkosAsync() {
         logger.LogInformation("Getting all Funkos");
         var funkos = await funkoRepository.GetAllAsync();
         return funkos.Select(funko => funko.ToDto()).ToList();
     }
 
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<FunkoDto>> SearchByNameAsync(string nombre) {
         logger.LogInformation("Searching Funkos by name {Nombre}", nombre);
         var funkos = await funkoRepository.SearchByNameAsync(nombre);
         return funkos.Select(funko => funko.ToDto()).ToList();
     }
 
+    /// <inheritdoc/>
     public async Task<Result<FunkoDto, DomainError>> GetByIdAsync(long id) {
         var funko = await funkoRepository.GetByIdAsync(id);
         return funko is null
@@ -36,6 +48,7 @@ public class FunkoService(
             : Result.Success<FunkoDto, DomainError>(funko.ToDto());
     }
 
+    /// <inheritdoc/>
     public async Task<Result<FunkoDto, DomainError>> CreateAsync(CreateFunkoDto request) {
         if (request is null)
             return Result.Failure<FunkoDto, DomainError>(
@@ -63,6 +76,7 @@ public class FunkoService(
         return Result.Success<FunkoDto, DomainError>(creado.ToDto());
     }
 
+    /// <inheritdoc/>
     public async Task<Result<FunkoDto, DomainError>> UpdateAsync(long id, UpdateFunkoDto request) {
         if (request is null)
             return Result.Failure<FunkoDto, DomainError>(
@@ -99,6 +113,7 @@ public class FunkoService(
         return Result.Success<FunkoDto, DomainError>(actualizado.ToDto());
     }
 
+    /// <inheritdoc/>
     public async Task<Result<FunkoDto, DomainError>> AdjustStockAsync(long id, int cantidad) {
         if (cantidad == 0)
             return Result.Failure<FunkoDto, DomainError>(
@@ -123,6 +138,7 @@ public class FunkoService(
         return Result.Success<FunkoDto, DomainError>(actualizado.ToDto());
     }
 
+    /// <inheritdoc/>
     public async Task<Result<bool, DomainError>> DeleteAsync(long id) {
         var deleted = await funkoRepository.DeleteAsync(id);
         if (!deleted) {

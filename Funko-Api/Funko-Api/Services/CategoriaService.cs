@@ -9,6 +9,8 @@ namespace Funko_Api.Services;
 /// <summary>
 /// Implementación del servicio de negocio para categorías.
 /// </summary>
+/// <param name="categoriaRepository">Repositorio de categorías.</param>
+/// <param name="logger">Logger del servicio.</param>
 public class CategoriaService(
     ICategoriaRepository categoriaRepository,
     ILogger<CategoriaService> logger

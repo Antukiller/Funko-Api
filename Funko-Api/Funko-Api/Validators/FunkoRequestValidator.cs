@@ -3,7 +3,13 @@ using Funko_Api.Models;
 
 namespace Funko_Api.Validators;
 
+/// <summary>
+/// Validador de la entidad de dominio <see cref="Funko"/>.
+/// </summary>
 public class FunkoRequestValidator : AbstractValidator<Funko> {
+    /// <summary>
+    /// Define las reglas de validación de un funko.
+    /// </summary>
     public FunkoRequestValidator() {
         RuleFor(funko => funko.Name)
             .NotEmpty().WithMessage("El nombre es obligatorio.")

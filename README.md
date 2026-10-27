@@ -498,7 +498,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | T.1 | Carpetas en plural (`Controllers/`, `Dtos/`, `Mappers/`, `Validators/`) | ✅ | `Controllers/`, `Dtos/`, `Mappers/`, `Validators/`, `Infrastructures/` | — |
 | T.2 | `Models/` para dominio y `Data/` para `DbContext` | ✅ | `Models/` + `Data/AppDbContext.cs` | — |
 | T.3 | DI explícito por `Infrastructures/*Config.cs` | ✅ | `RepositoriesConfig`, `ServicesConfig`, `ValidatorsConfig` + `DatabaseConfig` | — |
-| T.4 | XML docs en todo miembro público + `GenerateDocumentationFile` | ❌ | Solo métodos de controller; sin `<param>`/`<returns>` | P2 |
+| T.4 | XML docs en todo miembro público + `GenerateDocumentationFile` | ✅ | 0 avisos CS1591; `Funko-Api.xml` generado | — |
 | T.5 | Tests en `Unit/` e `Integration/` + `TestCategories.cs` | ❌ | Carpetas por tipo técnico | P2 |
 | T.6 | Integración con `[Category("Integration")]` | ❌ | Testcontainers se ejecuta siempre (exige Docker) | P2 |
 | T.7 | Nombres de test `Metodo_Escenario_Resultado` | ✅ | En español | — |
@@ -515,7 +515,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
 | Fases 1–9 + entregables (64 items) | 51 | 4 | 9 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 59 | 8 | 17 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 60 | 8 | 16 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
 > las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.

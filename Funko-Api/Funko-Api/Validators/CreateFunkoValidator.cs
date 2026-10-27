@@ -3,7 +3,13 @@ using Funko_Api.Dtos;
 
 namespace Funko_Api.Validators;
 
+/// <summary>
+/// Validador del DTO de creación de funkos.
+/// </summary>
 public class CreateFunkoValidator : AbstractValidator<CreateFunkoDto> {
+    /// <summary>
+    /// Define las reglas de validación de una creación.
+    /// </summary>
     public CreateFunkoValidator() {
         RuleFor(request => request.Name)
             .Cascade(CascadeMode.Stop)
