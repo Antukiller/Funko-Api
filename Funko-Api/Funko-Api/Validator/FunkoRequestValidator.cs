@@ -17,7 +17,14 @@ public class FunkoRequestValidator : AbstractValidator<Funko>, IScopedService {
             .GreaterThanOrEqualTo(0).WithMessage("Stock must be greater than or equal to 0.");
 
         RuleFor(funko => funko.Categoria)
-            .NotNull().WithMessage("Category is required.")
-            .SetValidator(new CategoriaRequestValidator());
+            .NotNull().WithMessage("Category is required.");
+
+        When(funko => funko.Categoria is not null, () => {
+            RuleFor(funko => funko.Categoria.Name)
+                .Cascade(CascadeMode.Stop)
+                .Must(name => !string.IsNullOrWhiteSpace(name))
+                .WithMessage("Category name is required.")
+                .MaximumLength(200).WithMessage("Category name cannot exceed 200 characters.");
+        });
     }
 }

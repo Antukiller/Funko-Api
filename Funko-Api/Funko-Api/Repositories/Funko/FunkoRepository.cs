@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using Funko_Api.Data;
-using Funko_Api.Errors;
+﻿using Funko_Api.Data;
 using Funko_Api.Infrastructure.Interface;
 using Funko_Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,58 +12,48 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository, IScopedSe
             .Include(x => x.Categoria)
             .ToListAsync();
 
-    public async Task<Result<Funko, DomainError>> GetByIdAsync(long id) {
-        var funko = await context.Funkos
+    public async Task<IReadOnlyList<Funko>> SearchByNameAsync(string nombre) {
+        var patron = nombre.Trim().ToLower();
+        return await context.Funkos
+            .AsNoTracking()
+            .Include(x => x.Categoria)
+            .Where(x => x.Name.ToLower().Contains(patron))
+            .ToListAsync();
+    }
+
+    public async Task<Funko?> GetByIdAsync(long id) =>
+        await context.Funkos
             .AsNoTracking()
             .Include(x => x.Categoria)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-        return funko is not null
-            ? Result.Success<Funko, DomainError>(funko)
-            : Result.Failure<Funko, DomainError>(NotFound.FromId(id, "Funko"));
-    }
-
-    public async Task<Result<Funko, DomainError>> CreateAsync(Funko funko) {
-        var categoria = await context.Categorias.FindAsync(funko.Categoria.Id);
-        if (categoria is null)
-            return Result.Failure<Funko, DomainError>(NotFound.FromId(funko.Categoria.Id, "Categoría"));
-
+    public async Task<Funko> CreateAsync(Funko funko) {
         var ahora = DateTime.UtcNow;
-        var nuevoFunko = new Funko {
-            Name = funko.Name,
-            Price = funko.Price,
-            Stock = funko.Stock,
-            Categoria = categoria,
-            CreatedAt = ahora,
-            UpdatedAt = ahora,
-            IsDeleted = false
-        };
+        funko.CreatedAt = ahora;
+        funko.UpdatedAt = ahora;
+        funko.IsDeleted = false;
 
-        await context.Funkos.AddAsync(nuevoFunko);
+        context.Funkos.Add(funko);
         await context.SaveChangesAsync();
-        return Result.Success<Funko, DomainError>(nuevoFunko);
+        return funko;
     }
 
-    public async Task<Result<Funko, DomainError>> UpdateAsync(long id, Funko funko) {
+    public async Task<Funko?> UpdateAsync(long id, Funko funko) {
         var funkoExistente = await context.Funkos
             .Include(x => x.Categoria)
             .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (funkoExistente is null || funko.IsDeleted)
-            return Result.Failure<Funko, DomainError>(NotFound.FromId(id, "Funko"));
-
-        var categoria = await context.Categorias.FindAsync(funko.Categoria.Id);
-        if (categoria is null)
-            return Result.Failure<Funko, DomainError>(NotFound.FromId(funko.Categoria.Id, "Categoría"));
+        if (funkoExistente is null)
+            return null;
 
         funkoExistente.Name = funko.Name;
-        funkoExistente.Categoria = categoria;
         funkoExistente.Price = funko.Price;
         funkoExistente.Stock = funko.Stock;
+        funkoExistente.Categoria = funko.Categoria;
         funkoExistente.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
-        return Result.Success<Funko, DomainError>(funkoExistente);
+        return funkoExistente;
     }
 
     public async Task<bool> DeleteAsync(long id) {

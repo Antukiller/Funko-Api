@@ -106,7 +106,7 @@ public class FunkoRequestValidatorTests {
 
         result.Errors.Should().ContainSingle(error =>
             error.PropertyName == "Categoria.Name" &&
-            error.ErrorMessage == "Name is required.");
+            error.ErrorMessage == "Category name is required.");
     }
 
     [Test]
@@ -118,7 +118,7 @@ public class FunkoRequestValidatorTests {
 
         result.Errors.Should().ContainSingle(error =>
             error.PropertyName == "Categoria.Name" &&
-            error.ErrorMessage == "Name cannot exceed 200 characters.");
+            error.ErrorMessage == "Category name cannot exceed 200 characters.");
     }
 
     [Test]
@@ -143,6 +143,18 @@ public class FunkoRequestValidatorTests {
             nameof(Funko.Price),
             nameof(Funko.Stock),
             "Categoria.Name");
+    }
+
+    [Test]
+    public void Validate_SinCategoria_TieneErrorDeCategoria() {
+        var funko = CreateValidFunko();
+        funko.Categoria = null!;
+
+        var result = _validator.Validate(funko);
+
+        result.Errors.Should().ContainSingle(error =>
+            error.PropertyName == nameof(Funko.Categoria) &&
+            error.ErrorMessage == "Category is required.");
     }
 
     private static Funko CreateValidFunko() {

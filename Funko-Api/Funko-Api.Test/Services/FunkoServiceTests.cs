@@ -24,11 +24,13 @@ public class FunkoServiceTests {
         _categoriaRepositoryMock = new Mock<ICategoriaRepository>();
         _categoriaRepositoryMock
             .Setup(repository => repository.GetByNameAsync(It.IsAny<string>()))
-            .ReturnsAsync(Result.Success<Categoria, DomainError>(CrearCategoria()));
+            .ReturnsAsync(CrearCategoria());
         _service = new FunkoService(
             _funkoRepositoryMock.Object,
             _categoriaRepositoryMock.Object,
             new FunkoRequestValidator(),
+            new CreateFunkoValidator(),
+            new UpdateFunkoValidator(),
             NullLogger<FunkoService>.Instance);
     }
 
@@ -48,9 +50,35 @@ public class FunkoServiceTests {
     }
 
     [Test]
+    public async Task SearchByNameAsync_ConCoincidencias_RetornaDtos() {
+        _funkoRepositoryMock.Setup(repository => repository.SearchByNameAsync("batman"))
+            .ReturnsAsync(new List<Funko> { CrearFunko() });
+
+        var result = await _service.SearchByNameAsync("batman");
+
+        result.Should().ContainSingle()
+            .Which.Should().BeEquivalentTo(new {
+                Name = "Batman Classic",
+                CategoriaName = "DC Comics"
+            });
+        _funkoRepositoryMock.Verify(
+            repository => repository.SearchByNameAsync("batman"), Times.Once);
+    }
+
+    [Test]
+    public async Task SearchByNameAsync_SinCoincidencias_RetornaListaVacia() {
+        _funkoRepositoryMock.Setup(repository => repository.SearchByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(new List<Funko>());
+
+        var result = await _service.SearchByNameAsync("inexistente");
+
+        result.Should().BeEmpty();
+    }
+
+    [Test]
     public async Task GetByIdAsync_CuandoExiste_RetornaDto() {
         _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
-            .ReturnsAsync(Result.Success<Funko, DomainError>(CrearFunko()));
+            .ReturnsAsync(CrearFunko());
 
         var result = await _service.GetByIdAsync(1);
 
@@ -64,10 +92,9 @@ public class FunkoServiceTests {
     }
 
     [Test]
-    public async Task GetByIdAsync_CuandoNoExiste_PropagaNotFound() {
-        var error = NotFound.FromId(8, "Funko");
+    public async Task GetByIdAsync_CuandoNoExiste_RetornaNotFound() {
         _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(8))
-            .ReturnsAsync(Result.Failure<Funko, DomainError>(error));
+            .ReturnsAsync((Funko?)null);
 
         var result = await _service.GetByIdAsync(8);
 
@@ -82,7 +109,7 @@ public class FunkoServiceTests {
         _funkoRepositoryMock.Setup(repository => repository.CreateAsync(It.IsAny<Funko>()))
             .ReturnsAsync((Funko funko) => {
                 funko.Id = 11;
-                return Result.Success<Funko, DomainError>(funko);
+                return funko;
             });
 
         var result = await _service.CreateAsync(request);
@@ -113,15 +140,15 @@ public class FunkoServiceTests {
     }
 
     [Test]
-    public async Task CreateAsync_CuandoCategoriaNoExiste_PropagaErrorSinGuardar() {
-        var error = NotFound.FromId(99, "Categoría");
+    public async Task CreateAsync_CuandoCategoriaNoExiste_RetornaNotFoundSinGuardar() {
         _categoriaRepositoryMock.Setup(repository => repository.GetByNameAsync("DC Comics"))
-            .ReturnsAsync(Result.Failure<Categoria, DomainError>(error));
+            .ReturnsAsync((Categoria?)null);
 
         var result = await _service.CreateAsync(CrearCreateRequest());
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeSameAs(error);
+        result.Error.Should().BeOfType<NotFound>()
+            .Which.Message.Should().Contain("DC Comics");
         _funkoRepositoryMock.Verify(
             repository => repository.CreateAsync(It.IsAny<Funko>()), Times.Never);
     }
@@ -140,27 +167,25 @@ public class FunkoServiceTests {
     }
 
     [Test]
-    public async Task CreateAsync_CuandoRepositorioFalla_PropagaError() {
-        var error = new ValidationError("No se pudo guardar", []);
-        _funkoRepositoryMock.Setup(repository => repository.CreateAsync(It.IsAny<Funko>()))
-            .ReturnsAsync(Result.Failure<Funko, DomainError>(error));
+    public async Task CreateAsync_CuandoElNombreEsInvalido_NoLlegaAlRepositorio() {
+        var request = CrearCreateRequest() with { Name = "" };
 
-        var result = await _service.CreateAsync(CrearCreateRequest());
+        var result = await _service.CreateAsync(request);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeSameAs(error);
+        result.Error.Should().BeOfType<ValidationError>()
+            .Which.Errors.Should().ContainKey("Name");
         _funkoRepositoryMock.Verify(
-            repository => repository.CreateAsync(It.IsAny<Funko>()), Times.Once);
+            repository => repository.CreateAsync(It.IsAny<Funko>()), Times.Never);
     }
 
     [Test]
     public async Task UpdateAsync_ConDatosValidos_ActualizaYRetornaDto() {
         _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
-            .ReturnsAsync(Result.Success<Funko, DomainError>(CrearFunko()));
+            .ReturnsAsync(CrearFunko());
         var request = CrearUpdateRequest();
         _funkoRepositoryMock.Setup(repository => repository.UpdateAsync(1, It.IsAny<Funko>()))
-            .ReturnsAsync((long _, Funko funko) =>
-                Result.Success<Funko, DomainError>(funko));
+            .ReturnsAsync((long _, Funko funko) => funko);
 
         var result = await _service.UpdateAsync(1, request);
 
@@ -189,15 +214,15 @@ public class FunkoServiceTests {
     }
 
     [Test]
-    public async Task UpdateAsync_CuandoFunkoNoExiste_PropagaNotFoundSinActualizar() {
-        var error = NotFound.FromId(8, "Funko");
+    public async Task UpdateAsync_CuandoFunkoNoExiste_RetornaNotFoundSinActualizar() {
         _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(8))
-            .ReturnsAsync(Result.Failure<Funko, DomainError>(error));
+            .ReturnsAsync((Funko?)null);
 
         var result = await _service.UpdateAsync(8, CrearUpdateRequest());
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeSameAs(error);
+        result.Error.Should().BeOfType<NotFound>()
+            .Which.Message.Should().Contain("8");
         _categoriaRepositoryMock.Verify(
             repository => repository.GetByNameAsync(It.IsAny<string>()), Times.Never);
         _funkoRepositoryMock.Verify(
@@ -205,9 +230,25 @@ public class FunkoServiceTests {
     }
 
     [Test]
+    public async Task UpdateAsync_CuandoCategoriaNoExiste_RetornaNotFoundSinActualizar() {
+        _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
+            .ReturnsAsync(CrearFunko());
+        _categoriaRepositoryMock.Setup(repository => repository.GetByNameAsync("DC Comics"))
+            .ReturnsAsync((Categoria?)null);
+
+        var result = await _service.UpdateAsync(1, CrearUpdateRequest());
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>()
+            .Which.Message.Should().Contain("DC Comics");
+        _funkoRepositoryMock.Verify(
+            repository => repository.UpdateAsync(It.IsAny<long>(), It.IsAny<Funko>()), Times.Never);
+    }
+
+    [Test]
     public async Task UpdateAsync_CuandoValidacionFalla_RetornaValidationErrorSinActualizar() {
         _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
-            .ReturnsAsync(Result.Success<Funko, DomainError>(CrearFunko()));
+            .ReturnsAsync(CrearFunko());
         var request = CrearUpdateRequest() with { Stock = -1 };
 
         var result = await _service.UpdateAsync(1, request);
@@ -220,17 +261,16 @@ public class FunkoServiceTests {
     }
 
     [Test]
-    public async Task UpdateAsync_CuandoRepositorioFalla_PropagaError() {
+    public async Task UpdateAsync_CuandoDesapareceEntreConsultas_RetornaNotFound() {
         _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
-            .ReturnsAsync(Result.Success<Funko, DomainError>(CrearFunko()));
-        var error = new ValidationError("No se pudo actualizar", []);
+            .ReturnsAsync(CrearFunko());
         _funkoRepositoryMock.Setup(repository => repository.UpdateAsync(1, It.IsAny<Funko>()))
-            .ReturnsAsync(Result.Failure<Funko, DomainError>(error));
+            .ReturnsAsync((Funko?)null);
 
         var result = await _service.UpdateAsync(1, CrearUpdateRequest());
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeSameAs(error);
+        result.Error.Should().BeOfType<NotFound>();
         _funkoRepositoryMock.Verify(
             repository => repository.UpdateAsync(1, It.IsAny<Funko>()), Times.Once);
     }
@@ -257,41 +297,6 @@ public class FunkoServiceTests {
         result.IsFailure.Should().BeTrue();
         result.Error.Should().BeOfType<NotFound>()
             .Which.Message.Should().Contain("8");
-    }
-
-    [Test]
-    public async Task GetAllCategoriesAsync_ConResultados_RetornaDtos() {
-        _categoriaRepositoryMock.Setup(repository => repository.GetAllAsync())
-            .ReturnsAsync(new List<Categoria> { CrearCategoria() });
-
-        var result = await _service.GetAllCategoriesAsync();
-
-        result.Should().ContainSingle()
-            .Which.Should().Be(new CategoriaDto(1, "DC Comics"));
-        _categoriaRepositoryMock.Verify(repository => repository.GetAllAsync(), Times.Once);
-    }
-
-    [Test]
-    public async Task GetCategoryByIdAsync_CuandoExiste_RetornaDto() {
-        _categoriaRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
-            .ReturnsAsync(Result.Success<Categoria, DomainError>(CrearCategoria()));
-
-        var result = await _service.GetCategoryByIdAsync(1);
-
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(new CategoriaDto(1, "DC Comics"));
-    }
-
-    [Test]
-    public async Task GetCategoryByIdAsync_CuandoNoExiste_PropagaNotFound() {
-        var error = NotFound.FromId(8, "Categoría");
-        _categoriaRepositoryMock.Setup(repository => repository.GetByIdAsync(8))
-            .ReturnsAsync(Result.Failure<Categoria, DomainError>(error));
-
-        var result = await _service.GetCategoryByIdAsync(8);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeSameAs(error);
     }
 
     private static Funko CrearFunko() => new() {

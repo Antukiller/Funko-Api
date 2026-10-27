@@ -3,17 +3,19 @@ using FluentValidation;
 using Funko_Api.Dto;
 using Funko_Api.Errors;
 using Funko_Api.Infrastructure.Interface;
-using Funko_Api.Models;
 using Funko_Api.Mapper;
-using Funko_Api.Repositories.Categoria;
+using Funko_Api.Models;
 using Funko_Api.Repositories;
+using Funko_Api.Repositories.Categoria;
 
 namespace Funko_Api.Services;
 
 public class FunkoService(
     IFunkoRepository funkoRepository,
     ICategoriaRepository categoriaRepository,
-    IValidator<Funko> validator,
+    IValidator<Funko> funkoValidator,
+    IValidator<CreateFunkoDto> createValidator,
+    IValidator<UpdateFunkoDto> updateValidator,
     ILogger<FunkoService> logger
 ) : IFunkoService, IScopedService {
     public async Task<IReadOnlyList<FunkoDto>> GetAllFunkosAsync() {
@@ -22,11 +24,17 @@ public class FunkoService(
         return funkos.Select(funko => funko.ToDto()).ToList();
     }
 
+    public async Task<IReadOnlyList<FunkoDto>> SearchByNameAsync(string nombre) {
+        logger.LogInformation("Searching Funkos by name {Nombre}", nombre);
+        var funkos = await funkoRepository.SearchByNameAsync(nombre);
+        return funkos.Select(funko => funko.ToDto()).ToList();
+    }
+
     public async Task<Result<FunkoDto, DomainError>> GetByIdAsync(long id) {
-        var result = await funkoRepository.GetByIdAsync(id);
-        return result.IsSuccess
-            ? Result.Success<FunkoDto, DomainError>(result.Value.ToDto())
-            : Result.Failure<FunkoDto, DomainError>(result.Error);
+        var funko = await funkoRepository.GetByIdAsync(id);
+        return funko is null
+            ? Result.Failure<FunkoDto, DomainError>(NotFound.FromId(id, "Funko"))
+            : Result.Success<FunkoDto, DomainError>(funko.ToDto());
     }
 
     public async Task<Result<FunkoDto, DomainError>> CreateAsync(CreateFunkoDto request) {
@@ -34,23 +42,22 @@ public class FunkoService(
             return Result.Failure<FunkoDto, DomainError>(
                 ValidationError.Create("La petición de creación no puede ser nula."));
 
-        var categoria = await categoriaRepository.GetByNameAsync(request.CategoriaName);
-        if (categoria.IsFailure)
-            return Result.Failure<FunkoDto, DomainError>(categoria.Error);
+        var requestValidation = await createValidator.ValidateAsync(request);
+        if (!requestValidation.IsValid)
+            return Result.Failure<FunkoDto, DomainError>(ToValidationError(requestValidation));
 
-        var funko = request.ToModel(categoria.Value);
-        var validation = await validator.ValidateAsync(funko);
+        var categoria = await categoriaRepository.GetByNameAsync(request.CategoriaName);
+        if (categoria is null)
+            return Result.Failure<FunkoDto, DomainError>(CategoriaNotFound(request.CategoriaName));
+
+        var funko = request.ToModel(categoria);
+        var validation = await funkoValidator.ValidateAsync(funko);
         if (!validation.IsValid)
             return Result.Failure<FunkoDto, DomainError>(ToValidationError(validation));
 
-        var result = await funkoRepository.CreateAsync(funko);
-        if (result.IsFailure) {
-            logger.LogWarning("Could not create Funko {Name}: {Error}", request.Name, result.Error);
-            return Result.Failure<FunkoDto, DomainError>(result.Error);
-        }
-
-        logger.LogInformation("Created Funko {FunkoId}", result.Value.Id);
-        return Result.Success<FunkoDto, DomainError>(result.Value.ToDto());
+        var creado = await funkoRepository.CreateAsync(funko);
+        logger.LogInformation("Created Funko {FunkoId}", creado.Id);
+        return Result.Success<FunkoDto, DomainError>(creado.ToDto());
     }
 
     public async Task<Result<FunkoDto, DomainError>> UpdateAsync(long id, UpdateFunkoDto request) {
@@ -58,32 +65,36 @@ public class FunkoService(
             return Result.Failure<FunkoDto, DomainError>(
                 ValidationError.Create("La petición de actualización no puede ser nula."));
 
+        var requestValidation = await updateValidator.ValidateAsync(request);
+        if (!requestValidation.IsValid)
+            return Result.Failure<FunkoDto, DomainError>(ToValidationError(requestValidation));
+
         var existente = await funkoRepository.GetByIdAsync(id);
-        if (existente.IsFailure)
-            return Result.Failure<FunkoDto, DomainError>(existente.Error);
+        if (existente is null)
+            return Result.Failure<FunkoDto, DomainError>(NotFound.FromId(id, "Funko"));
 
         var categoria = await categoriaRepository.GetByNameAsync(request.CategoriaName);
-        if (categoria.IsFailure)
-            return Result.Failure<FunkoDto, DomainError>(categoria.Error);
+        if (categoria is null)
+            return Result.Failure<FunkoDto, DomainError>(CategoriaNotFound(request.CategoriaName));
 
-        var funko = request.ToModel(categoria.Value);
-        var validation = await validator.ValidateAsync(funko);
+        var funko = request.ToModel(categoria);
+        var validation = await funkoValidator.ValidateAsync(funko);
         if (!validation.IsValid)
             return Result.Failure<FunkoDto, DomainError>(ToValidationError(validation));
 
-        var result = await funkoRepository.UpdateAsync(id, funko);
-        if (result.IsFailure) {
-            logger.LogWarning("Could not update Funko {FunkoId}: {Error}", id, result.Error);
-            return Result.Failure<FunkoDto, DomainError>(result.Error);
+        var actualizado = await funkoRepository.UpdateAsync(id, funko);
+        if (actualizado is null) {
+            logger.LogWarning("Could not update Funko {FunkoId}: not found", id);
+            return Result.Failure<FunkoDto, DomainError>(NotFound.FromId(id, "Funko"));
         }
 
         logger.LogInformation("Updated Funko {FunkoId}", id);
-        return Result.Success<FunkoDto, DomainError>(result.Value.ToDto());
+        return Result.Success<FunkoDto, DomainError>(actualizado.ToDto());
     }
 
     public async Task<Result<bool, DomainError>> DeleteAsync(long id) {
-        var result = await funkoRepository.DeleteAsync(id);
-        if (!result) {
+        var deleted = await funkoRepository.DeleteAsync(id);
+        if (!deleted) {
             logger.LogWarning("Could not delete Funko {FunkoId}: not found", id);
             return Result.Failure<bool, DomainError>(NotFound.FromId(id, "Funko"));
         }
@@ -92,18 +103,8 @@ public class FunkoService(
         return Result.Success<bool, DomainError>(true);
     }
 
-    public async Task<IReadOnlyList<CategoriaDto>> GetAllCategoriesAsync() {
-        var categories = await categoriaRepository.GetAllAsync();
-        return categories.Select(categoria => new CategoriaDto(categoria.Id, categoria.Name)).ToList();
-    }
-
-    public async Task<Result<CategoriaDto, DomainError>> GetCategoryByIdAsync(long id) {
-        var result = await categoriaRepository.GetByIdAsync(id);
-        return result.IsSuccess
-            ? Result.Success<CategoriaDto, DomainError>(
-                new CategoriaDto(result.Value.Id, result.Value.Name))
-            : Result.Failure<CategoriaDto, DomainError>(result.Error);
-    }
+    private static NotFound CategoriaNotFound(string nombre) =>
+        new($"La categoría '{nombre}' no existe");
 
     private static ValidationError ToValidationError(FluentValidation.Results.ValidationResult result) =>
         ValidationError.WithFieldErrors(result.Errors
@@ -111,5 +112,4 @@ public class FunkoService(
             .ToDictionary(
                 group => group.Key,
                 group => group.Select(error => error.ErrorMessage).ToArray()));
-
 }

@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Funko_Api.Data;
-using Funko_Api.Errors;
 using Funko_Api.Models;
 using Funko_Api.Repositories;
 using Microsoft.Data.Sqlite;
@@ -36,26 +35,16 @@ public class FunkoRepositoryTests {
 
     [Test]
     public async Task CreateAsync_ConDatosValidos_CreaFunkoConFechasYCategoria() {
-        var funko = CrearFunko("Funko de prueba", 2);
+        var funko = await CrearFunkoAsync("Funko de prueba", 2);
 
-        var result = await _repository.CreateAsync(funko);
+        var creado = await _repository.CreateAsync(funko);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().BePositive();
-        result.Value.Name.Should().Be("Funko de prueba");
-        result.Value.Categoria.Id.Should().Be(2);
-        result.Value.IsDeleted.Should().BeFalse();
-        result.Value.CreatedAt.Kind.Should().Be(DateTimeKind.Utc);
-        result.Value.UpdatedAt.Should().Be(result.Value.CreatedAt);
-    }
-
-    [Test]
-    public async Task CreateAsync_ConCategoriaInexistente_RetornaNotFound() {
-        var result = await _repository.CreateAsync(CrearFunko("Funko inválido", 999));
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeOfType<NotFound>();
-        result.Error.Message.Should().Contain("999");
+        creado.Id.Should().BePositive();
+        creado.Name.Should().Be("Funko de prueba");
+        creado.Categoria.Id.Should().Be(2);
+        creado.IsDeleted.Should().BeFalse();
+        creado.CreatedAt.Kind.Should().Be(DateTimeKind.Utc);
+        creado.UpdatedAt.Should().Be(creado.CreatedAt);
     }
 
     [Test]
@@ -67,64 +56,75 @@ public class FunkoRepositoryTests {
     }
 
     [Test]
-    public async Task GetByIdAsync_CuandoExiste_RetornaFunko() {
-        var result = await _repository.GetByIdAsync(1);
+    public async Task SearchByNameAsync_SinDistinguirMayusculas_RetornaCoincidencias() {
+        var funkos = await _repository.SearchByNameAsync("NARUTO");
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Name.Should().Be("Naruto Uzumaki");
-        result.Value.Categoria.Name.Should().Be("Anime");
+        funkos.Should().ContainSingle()
+            .Which.Name.Should().Be("Naruto Uzumaki");
+        funkos.Should().OnlyContain(funko => funko.Categoria != null);
     }
 
     [Test]
-    public async Task GetByIdAsync_CuandoNoExiste_RetornaNotFound() {
-        var result = await _repository.GetByIdAsync(999);
+    public async Task SearchByNameAsync_SinCoincidencias_RetornaListaVacia() {
+        var funkos = await _repository.SearchByNameAsync("no existe");
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeOfType<NotFound>();
-        result.Error.Message.Should().Contain("999");
+        funkos.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task SearchByNameAsync_IgnoraFunkosBorrados() {
+        await _repository.DeleteAsync(1);
+
+        var funkos = await _repository.SearchByNameAsync("naruto");
+
+        funkos.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task GetByIdAsync_CuandoExiste_RetornaFunko() {
+        var funko = await _repository.GetByIdAsync(1);
+
+        funko.Should().NotBeNull();
+        funko!.Name.Should().Be("Naruto Uzumaki");
+        funko.Categoria.Name.Should().Be("Anime");
+    }
+
+    [Test]
+    public async Task GetByIdAsync_CuandoNoExiste_RetornaNull() {
+        var funko = await _repository.GetByIdAsync(999);
+
+        funko.Should().BeNull();
     }
 
     [Test]
     public async Task UpdateAsync_ConDatosValidos_ActualizaFunkoExistente() {
-        var funko = CrearFunko("Funko actualizado", 2);
+        var funko = await CrearFunkoAsync("Funko actualizado", 2);
 
-        var result = await _repository.UpdateAsync(1, funko);
+        var actualizado = await _repository.UpdateAsync(1, funko);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().Be(1);
-        result.Value.Name.Should().Be("Funko actualizado");
-        result.Value.Price.Should().Be(19.99m);
-        result.Value.Stock.Should().Be(3);
-        result.Value.Categoria.Id.Should().Be(2);
-        result.Value.UpdatedAt.Kind.Should().Be(DateTimeKind.Utc);
+        actualizado.Should().NotBeNull();
+        actualizado!.Id.Should().Be(1);
+        actualizado.Name.Should().Be("Funko actualizado");
+        actualizado.Price.Should().Be(19.99m);
+        actualizado.Stock.Should().Be(3);
+        actualizado.Categoria.Id.Should().Be(2);
+        actualizado.UpdatedAt.Kind.Should().Be(DateTimeKind.Utc);
     }
 
     [Test]
-    public async Task UpdateAsync_CuandoNoExiste_RetornaNotFound() {
-        var result = await _repository.UpdateAsync(999, CrearFunko("Funko", 1));
+    public async Task UpdateAsync_CuandoNoExiste_RetornaNull() {
+        var actualizado = await _repository.UpdateAsync(999, await CrearFunkoAsync("Funko", 1));
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeOfType<NotFound>();
+        actualizado.Should().BeNull();
     }
 
     [Test]
-    public async Task UpdateAsync_CuandoCategoriaNoExiste_RetornaNotFound() {
-        var result = await _repository.UpdateAsync(1, CrearFunko("Funko", 999));
+    public async Task UpdateAsync_CuandoEstaBorrado_RetornaNull() {
+        await _repository.DeleteAsync(1);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeOfType<NotFound>();
-        result.Error.Message.Should().Contain("999");
-    }
+        var actualizado = await _repository.UpdateAsync(1, await CrearFunkoAsync("Funko", 1));
 
-    [Test]
-    public async Task UpdateAsync_CuandoFunkoDeEntradaEstaBorrado_RetornaNotFound() {
-        var funko = CrearFunko("Funko eliminado", 1);
-        funko.IsDeleted = true;
-
-        var result = await _repository.UpdateAsync(1, funko);
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeOfType<NotFound>();
+        actualizado.Should().BeNull();
     }
 
     [Test]
@@ -132,7 +132,7 @@ public class FunkoRepositoryTests {
         var deleted = await _repository.DeleteAsync(1);
 
         deleted.Should().BeTrue();
-        (await _repository.GetByIdAsync(1)).IsFailure.Should().BeTrue();
+        (await _repository.GetByIdAsync(1)).Should().BeNull();
         (await _context.Funkos.IgnoreQueryFilters()
             .AnyAsync(funko => funko.Id == 1 && funko.IsDeleted)).Should().BeTrue();
     }
@@ -144,10 +144,13 @@ public class FunkoRepositoryTests {
         deleted.Should().BeFalse();
     }
 
-    private static Funko CrearFunko(string name, long categoriaId) => new() {
-        Name = name,
-        Price = 19.99m,
-        Stock = 3,
-        Categoria = new Categoria { Id = categoriaId }
-    };
+    private async Task<Funko> CrearFunkoAsync(string name, long categoriaId) {
+        var categoria = await _context.Categorias.FindAsync(categoriaId);
+        return new Funko {
+            Name = name,
+            Price = 19.99m,
+            Stock = 3,
+            Categoria = categoria!
+        };
+    }
 }

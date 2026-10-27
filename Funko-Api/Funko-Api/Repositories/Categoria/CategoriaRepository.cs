@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using Funko_Api.Data;
-using Funko_Api.Errors;
+﻿using Funko_Api.Data;
 using Funko_Api.Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 using CategoriaModel = Funko_Api.Models.Categoria;
@@ -15,24 +11,16 @@ public class CategoriaRepository(AppDbContext context) : ICategoriaRepository, I
             .AsNoTracking()
             .ToListAsync();
 
-    public async Task<Result<CategoriaModel, DomainError>> GetByIdAsync(long id) {
-        var categoria = await context.Categorias
+    public async Task<CategoriaModel?> GetByIdAsync(long id) =>
+        await context.Categorias
             .AsNoTracking()
             .FirstOrDefaultAsync(item => item.Id == id);
 
-        return categoria is not null
-            ? Result.Success<CategoriaModel, DomainError>(categoria)
-            : Result.Failure<CategoriaModel, DomainError>(NotFound.FromId(id, "Categoría"));
-    }
-
-    public async Task<Result<CategoriaModel, DomainError>> GetByNameAsync(string name) {
-        var categoria = await context.Categorias
-            .AsNoTracking()
+    /// <summary>
+    /// Busca una categoría por nombre. Sin <c>AsNoTracking</c> a propósito: el resultado
+    /// se usa para crear o actualizar funkos y la entidad debe venir rastreada por el contexto.
+    /// </summary>
+    public async Task<CategoriaModel?> GetByNameAsync(string name) =>
+        await context.Categorias
             .FirstOrDefaultAsync(item => item.Name == name);
-
-        return categoria is not null
-            ? Result.Success<CategoriaModel, DomainError>(categoria)
-            : Result.Failure<CategoriaModel, DomainError>(
-                ValidationError.Create($"No existe la categoría '{name}'."));
-    }
 }

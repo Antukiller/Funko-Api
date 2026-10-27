@@ -1,12 +1,11 @@
-﻿using CSharpFunctionalExtensions;
-using Funko_Api.Errors;
+﻿using CategoriaModel = Funko_Api.Models.Categoria;
 
 namespace Funko_Api.Repositories.Categoria;
 
 public interface ICategoriaRepository {
-    Task<IReadOnlyList<Models.Categoria>> GetAllAsync();
+    Task<IReadOnlyList<CategoriaModel>> GetAllAsync();
 
-    Task<Result<Models.Categoria, DomainError>> GetByIdAsync(long id);
+    Task<CategoriaModel?> GetByIdAsync(long id);
 
-    Task<Result<Models.Categoria, DomainError>> GetByNameAsync(string name);
+    Task<CategoriaModel?> GetByNameAsync(string name);
 }

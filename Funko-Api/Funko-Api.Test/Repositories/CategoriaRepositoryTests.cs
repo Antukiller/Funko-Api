@@ -44,19 +44,17 @@ public class CategoriaRepositoryTests {
 
     [Test]
     public async Task GetByIdAsync_CuandoExiste_RetornaCategoria() {
-        var result = await _repository.GetByIdAsync(1);
+        var categoria = await _repository.GetByIdAsync(1);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Id.Should().Be(1);
-        result.Value.Name.Should().Be("Anime");
+        categoria.Should().NotBeNull();
+        categoria!.Id.Should().Be(1);
+        categoria.Name.Should().Be("Anime");
     }
 
     [Test]
-    public async Task GetByIdAsync_CuandoNoExiste_RetornaNotFound() {
-        var result = await _repository.GetByIdAsync(999);
+    public async Task GetByIdAsync_CuandoNoExiste_RetornaNull() {
+        var categoria = await _repository.GetByIdAsync(999);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().BeOfType<NotFound>();
-        result.Error.Message.Should().Contain("Categoría").And.Contain("999");
+        categoria.Should().BeNull();
     }
 }

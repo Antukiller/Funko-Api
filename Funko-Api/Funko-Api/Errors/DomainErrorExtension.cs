@@ -1,19 +1,41 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Funko_Api.Errors;
 
+/// <summary>
+/// Traduce errores de dominio y resultados a respuestas HTTP con Problem Details.
+/// Es el único punto donde el dominio se convierte en códigos de estado.
+/// </summary>
 public static class DomainErrorExtensions {
-    public static IResult ToHttpResult(this DomainError error) => error switch {
-        NotFound notFound => Results.Problem(
-            statusCode: StatusCodes.Status404NotFound,
-            title: "Recurso no encontrado",
-            detail: notFound.Message),
-        ValidationError validationError => Results.ValidationProblem(
-            validationError.Errors,
-            statusCode: StatusCodes.Status400BadRequest,
-            title: validationError.Message),
-        _ => Results.Problem(
-            statusCode: StatusCodes.Status500InternalServerError,
-            title: "Error interno del servidor")
+    /// <summary>
+    /// Convierte un error de dominio en una respuesta HTTP.
+    /// </summary>
+    public static IActionResult ToHttpResult(this DomainError error) => error switch {
+        NotFound notFound => new NotFoundObjectResult(new ProblemDetails {
+            Status = StatusCodes.Status404NotFound,
+            Title = "Recurso no encontrado",
+            Detail = notFound.Message
+        }),
+        ValidationError validationError => new BadRequestObjectResult(
+            new ValidationProblemDetails(validationError.Errors) {
+                Status = StatusCodes.Status400BadRequest,
+                Title = validationError.Message
+            }),
+        _ => new ObjectResult(new ProblemDetails {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Error interno del servidor"
+        }) {
+            StatusCode = StatusCodes.Status500InternalServerError
+        }
     };
+
+    /// <summary>
+    /// Devuelve <c>200 OK</c> con el valor si el resultado es correcto o el error traducido si no.
+    /// </summary>
+    public static IActionResult ToHttpResult<T>(this Result<T, DomainError> result) =>
+        result.IsSuccess
+            ? new OkObjectResult(result.Value)
+            : result.Error.ToHttpResult();
 }
