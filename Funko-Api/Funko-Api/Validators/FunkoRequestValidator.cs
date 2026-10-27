@@ -1,10 +1,9 @@
 using FluentValidation;
-using Funko_Api.Infrastructures.Interface;
 using Funko_Api.Models;
 
 namespace Funko_Api.Validators;
 
-public class FunkoRequestValidator : AbstractValidator<Funko>, IScopedService {
+public class FunkoRequestValidator : AbstractValidator<Funko> {
     public FunkoRequestValidator() {
         RuleFor(funko => funko.Name)
             .NotEmpty().WithMessage("El nombre es obligatorio.")

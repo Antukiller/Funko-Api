@@ -1,11 +1,10 @@
 using Funko_Api.Data;
-using Funko_Api.Infrastructures.Interface;
 using Funko_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Funko_Api.Repositories;
 
-public class FunkoRepository(AppDbContext context) : IFunkoRepository, IScopedService {
+public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     public async Task<IReadOnlyList<Funko>> GetAllAsync() =>
         await context.Funkos
             .AsNoTracking()

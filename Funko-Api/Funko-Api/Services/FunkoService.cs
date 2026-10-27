@@ -2,7 +2,6 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using Funko_Api.Dtos;
 using Funko_Api.Errors;
-using Funko_Api.Infrastructures.Interface;
 using Funko_Api.Mappers;
 using Funko_Api.Models;
 using Funko_Api.Repositories;
@@ -17,7 +16,7 @@ public class FunkoService(
     IValidator<CreateFunkoDto> createValidator,
     IValidator<UpdateFunkoDto> updateValidator,
     ILogger<FunkoService> logger
-) : IFunkoService, IScopedService {
+) : IFunkoService {
     public async Task<IReadOnlyList<FunkoDto>> GetAllFunkosAsync() {
         logger.LogInformation("Getting all Funkos");
         var funkos = await funkoRepository.GetAllAsync();

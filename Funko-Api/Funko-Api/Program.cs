@@ -14,8 +14,10 @@ var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Host.UseSerilog(Log.Logger);
 
-builder.Services.AddApplicationServices();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddRepositoriesConfiguration();
+builder.Services.AddServicesConfiguration();
+builder.Services.AddValidatorsConfiguration();
 builder.Services.AddControllers().AddJsonOptions(options => {
     options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
 });

@@ -1,10 +1,9 @@
 using FluentValidation;
 using Funko_Api.Dtos;
-using Funko_Api.Infrastructures.Interface;
 
 namespace Funko_Api.Validators;
 
-public class CreateFunkoValidator : AbstractValidator<CreateFunkoDto>, IScopedService {
+public class CreateFunkoValidator : AbstractValidator<CreateFunkoDto> {
     public CreateFunkoValidator() {
         RuleFor(request => request.Name)
             .Cascade(CascadeMode.Stop)

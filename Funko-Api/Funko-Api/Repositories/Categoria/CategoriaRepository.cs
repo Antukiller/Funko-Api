@@ -1,11 +1,10 @@
 using Funko_Api.Data;
-using Funko_Api.Infrastructures.Interface;
 using Microsoft.EntityFrameworkCore;
 using CategoriaModel = Funko_Api.Models.Categoria;
 
 namespace Funko_Api.Repositories.Categoria;
 
-public class CategoriaRepository(AppDbContext context) : ICategoriaRepository, IScopedService {
+public class CategoriaRepository(AppDbContext context) : ICategoriaRepository {
     public async Task<IReadOnlyList<CategoriaModel>> GetAllAsync() =>
         await context.Categorias
             .AsNoTracking()

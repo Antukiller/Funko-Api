@@ -319,6 +319,15 @@ Los niveles de `Microsoft` y EF Core se suben a `Warning` para que el log de
 negocio no se ahogue entre trazas del framework. `UseSerilogRequestLogging()`
 deja una línea por petición con método, ruta, código de estado y milisegundos.
 
+### Inyección de dependencias explícita
+
+Cada aspecto tiene su `Infrastructures/*Config.cs` con un extension method:
+`AddDatabaseConfiguration`, `AddRepositoriesConfiguration`,
+`AddServicesConfiguration` y `AddValidatorsConfiguration`. Se descartó el escaneo
+por reflexión con Scrutor y las interfaces marcador (`IScopedService`...) porque
+el registro explícito se lee de un vistazo y falla en el arranque, no en la
+primera petición.
+
 ### Datos semilla con `HasData`
 
 Los seeds viajan dentro de la migración, así que cualquier entorno arranca con
@@ -418,9 +427,9 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 5.1 | `IFunkoService` / `FunkoService` | ✅ | `Services/` | — |
 | 5.2 | `IFunkoRepository` / `FunkoRepository` | ✅ | `Repositories/Funko/` | — |
 | 5.3 | Repositorio en memoria `Dictionary<long, Funko>` | ❌ | Se pasó directo a EF (documentado) | P1 |
-| 5.4 | Ciclos de vida correctos | 🟡 | Marker interfaces + Scrutor: no es el patrón del profe | P1 |
+| 5.4 | Ciclos de vida correctos | ✅ | `AddScoped` explícito por capa en `Infrastructures/*Config.cs` | — |
 | 5.5 | Constructor primario | ✅ | Service, repo y controller | — |
-| 5.6 | **`AppDbContext` registrado en DI** | ✅ | `Infrastructure/DatabaseConfig.cs` | — |
+| 5.6 | **`AppDbContext` registrado en DI** | ✅ | `Infrastructures/DatabaseConfig.cs` | — |
 
 ### 6. Errores con patrón Result
 
@@ -452,7 +461,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | # | Requisito | Estado | Evidencia | Prio |
 |---|---|---|---|---|
 | 8.1 | `appsettings.json` + perfiles | ✅ | `appsettings.Development/Production.json` con `ConnectionStrings` y `Logging`; Serilog en `SerilogConfig` | — |
-| 8.2 | Serilog consola + fichero | ✅ | `Infrastructure/SerilogConfig.cs`: consola + `logs/funko-AAAAMMDD.log` (7 días) | — |
+| 8.2 | Serilog consola + fichero | ✅ | `Infrastructures/SerilogConfig.cs`: consola + `logs/funko-AAAAMMDD.log` (7 días) | — |
 | 8.3 | Log estructurado de operaciones CRUD | ✅ | `ILogger<T>` con placeholders + `UseSerilogRequestLogging` (método, ruta, estado, ms) | — |
 | 8.4 | Config por `IConfiguration` en extension methods | ✅ | `DatabaseConfig` recibe `builder.Configuration`; sin configuración estática | — |
 | 8.5 | Sin secretos ni paquetes en preview | ✅ | Serilog.AspNetCore 10.0.0, Sinks.File 7.0.0 y Sinks.Console 6.1.1 (estables) | — |
@@ -488,7 +497,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 |---|---|---|---|---|
 | T.1 | Carpetas en plural (`Controllers/`, `Dtos/`, `Mappers/`, `Validators/`) | ✅ | `Controllers/`, `Dtos/`, `Mappers/`, `Validators/`, `Infrastructures/` | — |
 | T.2 | `Models/` para dominio y `Data/` para `DbContext` | ✅ | `Models/` + `Data/AppDbContext.cs` | — |
-| T.3 | DI explícito por `Infrastructures/*Config.cs` | ❌ | Scrutor + marker interfaces | P1 |
+| T.3 | DI explícito por `Infrastructures/*Config.cs` | ✅ | `RepositoriesConfig`, `ServicesConfig`, `ValidatorsConfig` + `DatabaseConfig` | — |
 | T.4 | XML docs en todo miembro público + `GenerateDocumentationFile` | ❌ | Solo métodos de controller; sin `<param>`/`<returns>` | P2 |
 | T.5 | Tests en `Unit/` e `Integration/` + `TestCategories.cs` | ❌ | Carpetas por tipo técnico | P2 |
 | T.6 | Integración con `[Category("Integration")]` | ❌ | Testcontainers se ejecuta siempre (exige Docker) | P2 |
@@ -505,8 +514,8 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
-| Fases 1–9 + entregables (64 items) | 46 | 8 | 10 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 53 | 12 | 19 |
+| Fases 1–9 + entregables (64 items) | 51 | 4 | 9 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 59 | 8 | 17 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
 > las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.
@@ -548,7 +557,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 **P2 — estilo (tres sesiones)**
 
 - [ ] Carpetas en plural + `Data/` + `Models/`
-- [ ] DI por extension methods (adiós Scrutor)
+- [x] DI por extension methods (adiós Scrutor)
 - [ ] Español en validaciones; XML docs; `[ProducesResponseType]`; Swagger UI en `/swagger`
 - [ ] Tests a `Unit/` + `Integration/` con categorías
 - [ ] `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`
