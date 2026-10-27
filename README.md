@@ -43,7 +43,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 | PostgreSQL | 17 | Base de datos relacional |
 | FluentValidation | 12.2.0 | Validación de DTOs y dominio |
 | CSharpFunctionalExtensions | 3.7.0 | Patrón Result (`Result<T, DomainError>`) |
-| Serilog | 8.x | Logging (instalado, configuración pendiente) |
+| Serilog | 10.0.0 | Logging estructurado: consola + fichero diario |
 | NUnit + Moq + FluentAssertions | 4.x / 4.x / 8.11 | Testing |
 | Testcontainers | 4.3 | Tests de integración con PostgreSQL real |
 
@@ -303,6 +303,14 @@ cliente: `Middleware/GlobalExceptionHandler.cs` las captura, las registra en el
 log y responde con Problem Details (`application/problem+json`) incluyendo
 `traceId` para correlacionar la respuesta con la traza del servidor.
 
+### Logging con Serilog
+
+Serilog sustituye al logger por defecto y escribe en dos sitios: consola (formato
+compacto para desarrollo) y `logs/funko-AAAAMMDD.log` (rotación diaria, 7 días).
+Los niveles de `Microsoft` y EF Core se suben a `Warning` para que el log de
+negocio no se ahogue entre trazas del framework. `UseSerilogRequestLogging()`
+deja una línea por petición con método, ruta, código de estado y milisegundos.
+
 ### Datos semilla con `HasData`
 
 Los seeds viajan dentro de la migración, así que cualquier entorno arranca con
@@ -327,7 +335,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 5. Inyección de dependencias | ✅ |
 | 6. Patrón Result | ✅ |
 | 7. DTOs y validaciones | 🟡 |
-| 8. Configuración y logs | 🟡 Serilog sin configurar |
+| 8. Configuración y logs | ✅ |
 | 9. Persistencia con EF Core | ✅ |
 | 10–12. Seguridad, Swagger, Docker | ⏳ pendientes |
 
@@ -435,11 +443,11 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 | # | Requisito | Estado | Evidencia | Prio |
 |---|---|---|---|---|
-| 8.1 | `appsettings.json` + perfiles | 🟡 | `ConnectionStrings` sí; faltan `Jwt` y `Serilog` | P1 |
-| 8.2 | Serilog consola + fichero | ❌ | Paquete instalado, **sin configurar** | P1 |
-| 8.3 | Log estructurado de operaciones CRUD | 🟡 | `ILogger` con placeholders, sin sink de fichero | P1 |
+| 8.1 | `appsettings.json` + perfiles | ✅ | `appsettings.Development/Production.json` con `ConnectionStrings` y `Logging`; Serilog en `SerilogConfig` | — |
+| 8.2 | Serilog consola + fichero | ✅ | `Infrastructure/SerilogConfig.cs`: consola + `logs/funko-AAAAMMDD.log` (7 días) | — |
+| 8.3 | Log estructurado de operaciones CRUD | ✅ | `ILogger<T>` con placeholders + `UseSerilogRequestLogging` (método, ruta, estado, ms) | — |
 | 8.4 | Config por `IConfiguration` en extension methods | ✅ | `DatabaseConfig` recibe `builder.Configuration`; sin configuración estática | — |
-| 8.5 | Sin secretos ni paquetes en preview | 🟡 | `Serilog.Sinks.File 8.0.0-nblumhardt-02322` | P2 |
+| 8.5 | Sin secretos ni paquetes en preview | ✅ | Serilog.AspNetCore 10.0.0, Sinks.File 7.0.0 y Sinks.Console 6.1.1 (estables) | — |
 
 ### 9. Persistencia real
 
@@ -489,12 +497,12 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
-| Fases 1–9 + entregables (64 items) | 34 | 8 | 22 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 37 | 13 | 34 |
+| Fases 1–9 + entregables (64 items) | 46 | 8 | 10 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 49 | 13 | 22 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro. De las fases 1–9 quedan
-> abiertos los **P1** (patrón Result en repos, errores de negocio, Serilog,
-> `HasMaxLength`, código muerto y el `IsDeleted` del update).
+> abiertos `public partial class Program;` + test con `WebApplicationFactory` (11.3)
+> y la UI de Swagger (11.1); el resto son P2/P3 de estilo.
 
 **Nota orientativa: 7/10** (P0 cerrado).
 
@@ -524,7 +532,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 - [x] `HasMaxLength` == `MaximumLength`
 - [x] `ConflictError` (409) y `BusinessRuleError` (422)
 - [x] `GlobalExceptionHandler` con Problem Details + `traceId`
-- [ ] Serilog real (`Serilog.AspNetCore`, consola + fichero)
+- [x] Serilog real (`Serilog.AspNetCore`, consola + fichero)
 - [x] Borrar `FunkoConfig`, `UpdateFrom`, `UnitTest1`
 - [x] Borrar `FunkoPatchRequestDto` (el PATCH usa DTOs tipados)
 - [x] Corregir el `IsDeleted` del update

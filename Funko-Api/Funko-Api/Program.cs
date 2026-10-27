@@ -1,10 +1,18 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using Funko_Api.Dto;
 using Funko_Api.Infrastructure;
 using Funko_Api.Middleware;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
+
+Console.OutputEncoding = Encoding.UTF8;
+
+Log.Logger = SerilogConfig.Configure().CreateLogger();
 
 var builder = WebApplication.CreateSlimBuilder(args);
+
+builder.Host.UseSerilog(Log.Logger);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
@@ -34,6 +42,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.UseGlobalExceptionHandler();
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment()) {
     app.MapOpenApi();
