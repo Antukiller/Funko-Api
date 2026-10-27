@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Funko_Api.Dto;
 using Funko_Api.Infrastructure;
+using Funko_Api.Middleware;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -12,6 +13,8 @@ builder.Services.AddControllers().AddJsonOptions(options => {
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseGlobalExceptionHandler();
 
 if (app.Environment.IsDevelopment()) {
     app.MapOpenApi();

@@ -5,7 +5,7 @@
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/dotnet/csharp/)
 [![EF Core](https://img.shields.io/badge/EF%20Core-10-blue)](https://docs.microsoft.com/ef/core/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
-[![Tests](https://img.shields.io/badge/tests-73%20passing-brightgreen)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-76%20passing-brightgreen)](#-testing)
 
 **API RESTful para gestionar un catálogo de Funkos**, desarrollada como práctica 3
 de la asignatura *Desarrollo Web en Entornos Servidor* (DAW).
@@ -30,7 +30,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 - ✅ **Validación**: FluentValidation en DTOs y en el modelo de dominio.
 - ⚠️ **Errores de dominio**: `NotFound` y `ValidationError` traducidos a Problem Details.
 - 🐘 **Persistencia**: EF Core 10 + PostgreSQL 17 con migraciones aplicadas al arrancar.
-- 🧪 **Testing**: 73 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
+- 🧪 **Testing**: 76 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
 
 ## 🛠️ Tecnologías
 
@@ -202,13 +202,14 @@ dotnet test --filter "FullyQualifiedName!~Postgre"
 
 | Tipo | Cantidad | Tecnología |
 |---|---|---|
-| Unitarios (servicios, validadores, repos con SQLite en memoria) | 64 | NUnit, Moq, FluentAssertions |
+| Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 67 | NUnit, Moq, FluentAssertions |
 | Integración (repositorio contra PostgreSQL real) | 9 | Testcontainers |
 
-Cobertura actual de los 73 tests:
+Cobertura actual de los 76 tests:
 
 - `FunkoServiceTests` y `CategoriaServiceTests`: reglas y propagación de errores.
 - `CreateFunkoValidatorTests` / `UpdateFunkoValidatorTests`: validaciones de DTO.
+- `GlobalExceptionHandlerTests`: Problem Details con `traceId` y mapeo de excepciones.
 - `FunkoRepositoryTests`: consultas, búsqueda y borrado lógico sobre SQLite.
 - `FunkoRepositoryPostgreTests`: mapeo y migraciones contra PostgreSQL en contenedor.
 
@@ -290,8 +291,13 @@ controladores ofrecen una estructura más clara.
 
 Los servicios devuelven `Result<T, DomainError>` de `CSharpFunctionalExtensions`.
 El dominio no conoce HTTP: `NotFound` y `ValidationError` se traducen a Problem
-Details en el controlador. Ventaja: las reglas de negocio se pueden testear sin
-levantar el servidor.
+Details en un único punto, `Errors/DomainErrorExtension.cs`. Ventaja: las reglas
+de negocio se pueden testear sin levantar el servidor.
+
+Las excepciones no controladas (fallos de BD, timeouts, bugs) no llegan al
+cliente: `Middleware/GlobalExceptionHandler.cs` las captura, las registra en el
+log y responde con Problem Details (`application/problem+json`) incluyendo
+`traceId` para correlacionar la respuesta con la traza del servidor.
 
 ### Datos semilla con `HasData`
 
@@ -315,7 +321,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 3. Minimal API | 🟡 documentada como comparación, no se mantiene |
 | 4. Controladores | ✅ |
 | 5. Inyección de dependencias | ✅ |
-| 6. Patrón Result | 🟡 faltan errores de duplicado, stock y manejador global |
+| 6. Patrón Result | 🟡 faltan errores de duplicado y stock |
 | 7. DTOs y validaciones | 🟡 |
 | 8. Configuración y logs | 🟡 Serilog sin configurar |
 | 9. Persistencia con EF Core | ✅ |
@@ -325,8 +331,8 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 ## ✅ Checklist de la rúbrica — Práctica 3
 
-> **Última revisión:** 2026-10-26 · **Checkpoint:** fase 9
-> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (73/73).
+> **Última revisión:** 2026-10-27 · **Checkpoint:** fase 9
+> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (76/76).
 >
 > **Leyenda:** ✅ cumple · 🟡 parcial / no conforme · ❌ no existe · ❓ no verificable
 > **Prioridad:** **P0** bloqueante · **P1** correctness · **P2** estilo · **P3** flujo de trabajo
@@ -341,7 +347,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 0.4 | README con uso, tests, Docker y justificación | ✅ | Este documento | — |
 | 0.5 | `docker compose up` levanta API + BD | ❌ | Fase 12 | Pend. |
 | 0.6 | Documentación en `/swagger` | ❌ | Solo OpenAPI JSON en `/openapi/v1.json` | P1 |
-| 0.7 | `dotnet test` en verde | ✅ | 73/73 | — |
+| 0.7 | `dotnet test` en verde | ✅ | 76/76 | — |
 | 0.8 | `dotnet build` sin errores | ✅ | 0 errores | — |
 | 0.9 | `bin/` y `obj/` fuera del repo (`.gitignore`) | ✅ | `.gitignore` + `git rm --cached` | — |
 | 0.10 | `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig` | ❌ | No existen | P2 |
@@ -404,7 +410,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 6.2 | Error: Funko no encontrado | ✅ | `NotFound` | — |
 | 6.3 | Error: **nombre duplicado** | ❌ | No existe `ConflictError` ni regla | P1 |
 | 6.4 | Error: **stock insuficiente** | ❌ | No existe `BusinessRuleError` | P1 |
-| 6.5 | Manejador global → Problem Details | ❌ | No hay `Middleware/GlobalExceptionHandler.cs` | P1 |
+| 6.5 | Manejador global → Problem Details | ✅ | `Middleware/GlobalExceptionHandler.cs`: 500/409/408/400 con `traceId`, `instance` y `timestamp` | — |
 | 6.6 | Traducción `DomainError` → HTTP centralizada | ✅ | `ToHttpResult`/`ToHttpResult<T>` únicos en `Errors/DomainErrorExtension.cs` | — |
 | 6.7 | Repositorio no decide errores de negocio | ✅ | Repositorios devuelven entidad/`null`; el servicio crea `NotFound`/`ValidationError` | — |
 
@@ -499,7 +505,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 **P0 — bloqueantes (cerrado ✅)**
 
 - [x] Arreglar `CS1061` con `ICategoriaService`
-- [x] `dotnet build` en verde y `dotnet test` ejecutando (73/73)
+- [x] `dotnet build` en verde y `dotnet test` ejecutando (76/76)
 - [x] Paquete `Npgsql.EntityFrameworkCore.PostgreSQL` en la API
 - [x] `Infrastructure/DatabaseConfig.cs` + `AddDbContext` + `ConnectionStrings`
 - [x] Migración `InitialCreate` y aplicación al arrancar
