@@ -25,6 +25,9 @@ public class FunkoServiceTests {
         _categoriaRepositoryMock
             .Setup(repository => repository.GetByNameAsync(It.IsAny<string>()))
             .ReturnsAsync(CrearCategoria());
+        _funkoRepositoryMock
+            .Setup(repository => repository.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<long?>()))
+            .ReturnsAsync(false);
         _service = new FunkoService(
             _funkoRepositoryMock.Object,
             _categoriaRepositoryMock.Object,
@@ -297,6 +300,91 @@ public class FunkoServiceTests {
         result.IsFailure.Should().BeTrue();
         result.Error.Should().BeOfType<NotFound>()
             .Which.Message.Should().Contain("8");
+    }
+
+    [Test]
+    public async Task CreateAsync_CuandoNombreDuplicado_RetornaConflictSinGuardar() {
+        _funkoRepositoryMock
+            .Setup(repository => repository.ExistsByNameAsync("Batman Classic", It.IsAny<long?>()))
+            .ReturnsAsync(true);
+
+        var result = await _service.CreateAsync(CrearCreateRequest());
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<ConflictError>()
+            .Which.Message.Should().Contain("Batman Classic");
+        _funkoRepositoryMock.Verify(
+            repository => repository.CreateAsync(It.IsAny<Funko>()), Times.Never);
+    }
+
+    [Test]
+    public async Task UpdateAsync_CuandoNombreDuplicado_RetornaConflictSinActualizar() {
+        _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
+            .ReturnsAsync(CrearFunko());
+        _funkoRepositoryMock
+            .Setup(repository => repository.ExistsByNameAsync("Batman actualizado", 1))
+            .ReturnsAsync(true);
+
+        var result = await _service.UpdateAsync(1, CrearUpdateRequest());
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<ConflictError>();
+        _funkoRepositoryMock.Verify(
+            repository => repository.UpdateAsync(It.IsAny<long>(), It.IsAny<Funko>()), Times.Never);
+    }
+
+    [Test]
+    public async Task AdjustStockAsync_ConCantidadNegativa_DescuentaStock() {
+        _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
+            .ReturnsAsync(CrearFunko());
+        _funkoRepositoryMock.Setup(repository => repository.UpdateStockAsync(1, 3))
+            .ReturnsAsync((long _, int stock) => {
+                var funko = CrearFunko();
+                funko.Stock = stock;
+                return funko;
+            });
+
+        var result = await _service.AdjustStockAsync(1, -2);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Stock.Should().Be(3);
+        _funkoRepositoryMock.Verify(
+            repository => repository.UpdateStockAsync(1, 3), Times.Once);
+    }
+
+    [Test]
+    public async Task AdjustStockAsync_CuandoNoHayStockSuficiente_RetornaBusinessRuleError() {
+        _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(1))
+            .ReturnsAsync(CrearFunko());
+
+        var result = await _service.AdjustStockAsync(1, -6);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<BusinessRuleError>()
+            .Which.Message.Should().Contain("disponible 5").And.Contain("solicitado 6");
+        _funkoRepositoryMock.Verify(
+            repository => repository.UpdateStockAsync(It.IsAny<long>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [Test]
+    public async Task AdjustStockAsync_ConCantidadCero_RetornaValidationError() {
+        var result = await _service.AdjustStockAsync(1, 0);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<ValidationError>();
+        _funkoRepositoryMock.Verify(
+            repository => repository.GetByIdAsync(It.IsAny<long>()), Times.Never);
+    }
+
+    [Test]
+    public async Task AdjustStockAsync_CuandoFunkoNoExiste_RetornaNotFound() {
+        _funkoRepositoryMock.Setup(repository => repository.GetByIdAsync(8))
+            .ReturnsAsync((Funko?)null);
+
+        var result = await _service.AdjustStockAsync(8, 1);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().BeOfType<NotFound>();
     }
 
     private static Funko CrearFunko() => new() {

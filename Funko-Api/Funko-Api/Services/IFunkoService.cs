@@ -10,5 +10,6 @@ public interface IFunkoService {
     Task<Result<FunkoDto, DomainError>> GetByIdAsync(long id);
     Task<Result<FunkoDto, DomainError>> CreateAsync(CreateFunkoDto request);
     Task<Result<FunkoDto, DomainError>> UpdateAsync(long id, UpdateFunkoDto request);
+    Task<Result<FunkoDto, DomainError>> AdjustStockAsync(long id, int cantidad);
     Task<Result<bool, DomainError>> DeleteAsync(long id);
 }

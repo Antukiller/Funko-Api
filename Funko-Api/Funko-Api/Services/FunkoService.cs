@@ -46,6 +46,10 @@ public class FunkoService(
         if (!requestValidation.IsValid)
             return Result.Failure<FunkoDto, DomainError>(ToValidationError(requestValidation));
 
+        if (await funkoRepository.ExistsByNameAsync(request.Name))
+            return Result.Failure<FunkoDto, DomainError>(
+                ConflictError.Duplicate("Funko", request.Name));
+
         var categoria = await categoriaRepository.GetByNameAsync(request.CategoriaName);
         if (categoria is null)
             return Result.Failure<FunkoDto, DomainError>(CategoriaNotFound(request.CategoriaName));
@@ -73,6 +77,10 @@ public class FunkoService(
         if (existente is null)
             return Result.Failure<FunkoDto, DomainError>(NotFound.FromId(id, "Funko"));
 
+        if (await funkoRepository.ExistsByNameAsync(request.Name, id))
+            return Result.Failure<FunkoDto, DomainError>(
+                ConflictError.Duplicate("Funko", request.Name));
+
         var categoria = await categoriaRepository.GetByNameAsync(request.CategoriaName);
         if (categoria is null)
             return Result.Failure<FunkoDto, DomainError>(CategoriaNotFound(request.CategoriaName));
@@ -89,6 +97,30 @@ public class FunkoService(
         }
 
         logger.LogInformation("Updated Funko {FunkoId}", id);
+        return Result.Success<FunkoDto, DomainError>(actualizado.ToDto());
+    }
+
+    public async Task<Result<FunkoDto, DomainError>> AdjustStockAsync(long id, int cantidad) {
+        if (cantidad == 0)
+            return Result.Failure<FunkoDto, DomainError>(
+                ValidationError.Create("La cantidad debe ser distinta de cero."));
+
+        var funko = await funkoRepository.GetByIdAsync(id);
+        if (funko is null)
+            return Result.Failure<FunkoDto, DomainError>(NotFound.FromId(id, "Funko"));
+
+        var nuevoStock = funko.Stock + cantidad;
+        if (nuevoStock < 0)
+            return Result.Failure<FunkoDto, DomainError>(
+                BusinessRuleError.StockInsuficiente(funko.Name, funko.Stock, Math.Abs(cantidad)));
+
+        var actualizado = await funkoRepository.UpdateStockAsync(id, nuevoStock);
+        if (actualizado is null) {
+            logger.LogWarning("Could not adjust stock of Funko {FunkoId}: not found", id);
+            return Result.Failure<FunkoDto, DomainError>(NotFound.FromId(id, "Funko"));
+        }
+
+        logger.LogInformation("Adjusted stock of Funko {FunkoId} to {Stock}", id, nuevoStock);
         return Result.Success<FunkoDto, DomainError>(actualizado.ToDto());
     }
 

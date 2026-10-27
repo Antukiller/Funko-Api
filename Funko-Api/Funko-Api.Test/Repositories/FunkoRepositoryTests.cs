@@ -144,6 +144,45 @@ public class FunkoRepositoryTests {
         deleted.Should().BeFalse();
     }
 
+    [Test]
+    public async Task ExistsByNameAsync_IgnoraMayusculasYEspacios() {
+        var exists = await _repository.ExistsByNameAsync("  NARUTO UZUMAKI ");
+
+        exists.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ExistsByNameAsync_ConExcludeId_NoCuentaElMismoFunko() {
+        var exists = await _repository.ExistsByNameAsync("Naruto Uzumaki", 1);
+
+        exists.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ExistsByNameAsync_IgnoraFunkosBorrados() {
+        await _repository.DeleteAsync(1);
+
+        var exists = await _repository.ExistsByNameAsync("Naruto Uzumaki");
+
+        exists.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task UpdateStockAsync_ConStockValido_Actualiza() {
+        var actualizado = await _repository.UpdateStockAsync(1, 3);
+
+        actualizado.Should().NotBeNull();
+        actualizado!.Stock.Should().Be(3);
+        actualizado.UpdatedAt.Kind.Should().Be(DateTimeKind.Utc);
+    }
+
+    [Test]
+    public async Task UpdateStockAsync_CuandoNoExiste_RetornaNull() {
+        var actualizado = await _repository.UpdateStockAsync(999, 3);
+
+        actualizado.Should().BeNull();
+    }
+
     private async Task<Funko> CrearFunkoAsync(string name, long categoriaId) {
         var categoria = await _context.Categorias.FindAsync(categoriaId);
         return new Funko {

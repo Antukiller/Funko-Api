@@ -21,6 +21,13 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository, IScopedSe
             .ToListAsync();
     }
 
+    public async Task<bool> ExistsByNameAsync(string name, long? excludeId = null) {
+        var buscado = name.Trim().ToLower();
+        return await context.Funkos
+            .AnyAsync(funko => funko.Name.ToLower() == buscado
+                               && (excludeId == null || funko.Id != excludeId));
+    }
+
     public async Task<Funko?> GetByIdAsync(long id) =>
         await context.Funkos
             .AsNoTracking()
@@ -54,6 +61,21 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository, IScopedSe
 
         await context.SaveChangesAsync();
         return funkoExistente;
+    }
+
+    public async Task<Funko?> UpdateStockAsync(long id, int stock) {
+        var funko = await context.Funkos
+            .Include(x => x.Categoria)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (funko is null)
+            return null;
+
+        funko.Stock = stock;
+        funko.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        return funko;
     }
 
     public async Task<bool> DeleteAsync(long id) {

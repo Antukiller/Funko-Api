@@ -75,6 +75,13 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     }
 
     /// <summary>
+    /// Ajusta el stock de un Funko: una cantidad positiva repone y una negativa descuenta.
+    /// </summary>
+    [HttpPatch("{id:long}/stock")]
+    public async Task<IActionResult> PatchStock(long id, [FromBody] int cantidad) =>
+        (await service.AdjustStockAsync(id, cantidad)).ToHttpResult();
+
+    /// <summary>
     /// Elimina un Funko (soft delete).
     /// </summary>
     [HttpDelete("{id:long}")]

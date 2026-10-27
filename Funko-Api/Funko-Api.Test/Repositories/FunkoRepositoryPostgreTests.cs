@@ -143,6 +143,24 @@ public sealed class FunkoRepositoryPostgreTests {
         deleted.Should().BeFalse();
     }
 
+    [Test]
+    public async Task ExistsByNameAsync_ConExcludeId_NoCuentaElMismoFunko() {
+        var exists = await _repository.ExistsByNameAsync("Naruto Uzumaki", 1);
+
+        exists.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task UpdateStockAsync_Existente_PersisteCambiosEnPostgreSql() {
+        var actualizado = await _repository.UpdateStockAsync(1, 3);
+
+        actualizado.Should().NotBeNull();
+        actualizado!.Stock.Should().Be(3);
+
+        var releido = await _repository.GetByIdAsync(1);
+        releido!.Stock.Should().Be(3);
+    }
+
     private async Task<Funko> CrearFunkoAsync(string name, long categoriaId) {
         var categoria = await _context.Categorias.FindAsync(categoriaId);
         return new Funko {

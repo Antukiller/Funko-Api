@@ -5,7 +5,7 @@
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/dotnet/csharp/)
 [![EF Core](https://img.shields.io/badge/EF%20Core-10-blue)](https://docs.microsoft.com/ef/core/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
-[![Tests](https://img.shields.io/badge/tests-76%20passing-brightgreen)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-89%20passing-brightgreen)](#-testing)
 
 **API RESTful para gestionar un catálogo de Funkos**, desarrollada como práctica 3
 de la asignatura *Desarrollo Web en Entornos Servidor* (DAW).
@@ -30,7 +30,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 - ✅ **Validación**: FluentValidation en DTOs y en el modelo de dominio.
 - ⚠️ **Errores de dominio**: `NotFound` y `ValidationError` traducidos a Problem Details.
 - 🐘 **Persistencia**: EF Core 10 + PostgreSQL 17 con migraciones aplicadas al arrancar.
-- 🧪 **Testing**: 76 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
+- 🧪 **Testing**: 89 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
 
 ## 🛠️ Tecnologías
 
@@ -54,7 +54,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 | Propiedad | Tipo | Justificación |
 |---|---|---|
 | `Id` | `long` | Identificador único. `bigint` con `IDENTITY` en PostgreSQL; `long` evita quedarse corto y es coherente con las FKs. |
-| `Name` | `string` | Nombre comercial del funko. Obligatorio: sin nombre el recurso no tiene sentido. En BD está limitado a 20 caracteres y el validador a 200 (**pendiente de unificar**, P1). |
+| `Name` | `string` | Nombre comercial del funko. Obligatorio: sin nombre el recurso no tiene sentido. En BD y en el validador está limitado a 200 caracteres. |
 | `Price` | `decimal` | Precio en euros. `decimal` y no `double` para no arrastrar errores de redondeo binario; en BD `numeric(20,2)`. |
 | `Stock` | `int` | Unidades disponibles. `int` es más que suficiente para una tienda de coleccionables y no admite negativos (lo valida FluentValidation). |
 | `Categoria` | `Categoria` | Relación **1:N** obligatoria: todo funko pertenece a una categoría. Se configura con `HasOne/WithMany` y `DeleteBehavior.Restrict` para no borrar categorías en uso. |
@@ -97,6 +97,7 @@ URL base en desarrollo: `http://localhost:5052`
 | `POST` | `/api/funkos` | Crea un funko | `201` + `Location` |
 | `PUT` | `/api/funkos/{id}` | Actualiza un funko completo | `200` |
 | `PATCH` | `/api/funkos/{id}/precio` | Actualiza solo el precio | `200` |
+| `PATCH` | `/api/funkos/{id}/stock` | Ajusta el stock: positivo repone, negativo descuenta | `200` |
 | `DELETE` | `/api/funkos/{id}` | Borrado lógico | `204` |
 | `GET` | `/api/categorias` | Lista todas las categorías | `200` |
 | `GET` | `/api/categorias/{id}` | Obtiene una categoría por id | `200` |
@@ -119,6 +120,9 @@ Invoke-RestMethod http://localhost:5052/api/funkos -Method Post -Body $body -Con
 
 # Actualizar solo el precio (el cuerpo es un número JSON)
 Invoke-RestMethod http://localhost:5052/api/funkos/6/precio -Method Patch -Body "19.99" -ContentType "application/json"
+
+# Ajustar stock: -2 descuenta, +5 repone
+Invoke-RestMethod http://localhost:5052/api/funkos/6/stock -Method Patch -Body "-2" -ContentType "application/json"
 
 # Borrar
 Invoke-RestMethod http://localhost:5052/api/funkos/6 -Method Delete
@@ -202,10 +206,10 @@ dotnet test --filter "FullyQualifiedName!~Postgre"
 
 | Tipo | Cantidad | Tecnología |
 |---|---|---|
-| Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 67 | NUnit, Moq, FluentAssertions |
-| Integración (repositorio contra PostgreSQL real) | 9 | Testcontainers |
+| Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 78 | NUnit, Moq, FluentAssertions |
+| Integración (repositorio contra PostgreSQL real) | 11 | Testcontainers |
 
-Cobertura actual de los 76 tests:
+Cobertura actual de los 89 tests:
 
 - `FunkoServiceTests` y `CategoriaServiceTests`: reglas y propagación de errores.
 - `CreateFunkoValidatorTests` / `UpdateFunkoValidatorTests`: validaciones de DTO.
@@ -284,7 +288,7 @@ por controladores para el proyecto final:
 | Documentación XML / Swagger | Requiere configuración extra | Integrada |
 | Testing | Más difícil de aislar | Se instancia el controlador o `WebApplicationFactory` |
 
-Con 9 endpoints, DTOs, validadores y (pronto) autenticación por roles, los
+Con 10 endpoints, DTOs, validadores y (pronto) autenticación por roles, los
 controladores ofrecen una estructura más clara.
 
 ### Patrón Result
@@ -321,7 +325,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 3. Minimal API | 🟡 documentada como comparación, no se mantiene |
 | 4. Controladores | ✅ |
 | 5. Inyección de dependencias | ✅ |
-| 6. Patrón Result | 🟡 faltan errores de duplicado y stock |
+| 6. Patrón Result | ✅ |
 | 7. DTOs y validaciones | 🟡 |
 | 8. Configuración y logs | 🟡 Serilog sin configurar |
 | 9. Persistencia con EF Core | ✅ |
@@ -332,7 +336,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 ## ✅ Checklist de la rúbrica — Práctica 3
 
 > **Última revisión:** 2026-10-27 · **Checkpoint:** fase 9
-> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (76/76).
+> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (89/89).
 >
 > **Leyenda:** ✅ cumple · 🟡 parcial / no conforme · ❌ no existe · ❓ no verificable
 > **Prioridad:** **P0** bloqueante · **P1** correctness · **P2** estilo · **P3** flujo de trabajo
@@ -347,7 +351,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 0.4 | README con uso, tests, Docker y justificación | ✅ | Este documento | — |
 | 0.5 | `docker compose up` levanta API + BD | ❌ | Fase 12 | Pend. |
 | 0.6 | Documentación en `/swagger` | ❌ | Solo OpenAPI JSON en `/openapi/v1.json` | P1 |
-| 0.7 | `dotnet test` en verde | ✅ | 76/76 | — |
+| 0.7 | `dotnet test` en verde | ✅ | 89/89 | — |
 | 0.8 | `dotnet build` sin errores | ✅ | 0 errores | — |
 | 0.9 | `bin/` y `obj/` fuera del repo (`.gitignore`) | ✅ | `.gitignore` + `git rm --cached` | — |
 | 0.10 | `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig` | ❌ | No existen | P2 |
@@ -408,8 +412,8 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 |---|---|---|---|---|
 | 6.1 | `Result<T>` en los servicios | ✅ | `CSharpFunctionalExtensions` | — |
 | 6.2 | Error: Funko no encontrado | ✅ | `NotFound` | — |
-| 6.3 | Error: **nombre duplicado** | ❌ | No existe `ConflictError` ni regla | P1 |
-| 6.4 | Error: **stock insuficiente** | ❌ | No existe `BusinessRuleError` | P1 |
+| 6.3 | Error: **nombre duplicado** | ✅ | `ConflictError.Duplicate` → 409; comprobado con `ExistsByNameAsync` en create y update | — |
+| 6.4 | Error: **stock insuficiente** | ✅ | `BusinessRuleError.StockInsuficiente` → 422 en `PATCH /api/funkos/{id}/stock` | — |
 | 6.5 | Manejador global → Problem Details | ✅ | `Middleware/GlobalExceptionHandler.cs`: 500/409/408/400 con `traceId`, `instance` y `timestamp` | — |
 | 6.6 | Traducción `DomainError` → HTTP centralizada | ✅ | `ToHttpResult`/`ToHttpResult<T>` únicos en `Errors/DomainErrorExtension.cs` | — |
 | 6.7 | Repositorio no decide errores de negocio | ✅ | Repositorios devuelven entidad/`null`; el servicio crea `NotFound`/`ValidationError` | — |
@@ -422,8 +426,8 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 7.2 | **Data Annotations** | ❌ | Solo FluentValidation | P1 |
 | 7.3 | Validador de dominio | ✅ | `FunkoRequestValidator` (duplica reglas) | — |
 | 7.4 | Mapeo con métodos de extensión | ✅ | `Mapper/FunkoMapper.cs` | — |
-| 7.5 | Longitudes BD == validator | ❌ | 20 vs 200 → `DbUpdateException` con 500 | **P1** |
-| 7.6 | Mensajes de validación en español | ❌ | `"Name is required."` | P2 |
+| 7.5 | Longitudes BD == validator | ✅ | `HasMaxLength(200)` en BD y 200 en validadores (migración `AmpliarLongitudNombreFunko`) | — |
+| 7.6 | Mensajes de validación en español | ✅ | "El nombre es obligatorio.", "El stock no puede ser negativo."... | — |
 | 7.7 | Sin DTOs muertos | ❌ | `FunkoPatchRequestDto` + 7 tests, el endpoint no lo usa | P1 |
 | 7.8 | `FunkoDto` no expone `IsDeleted` | ❌ | Siempre `false` por query filter | P2 |
 
@@ -505,7 +509,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 **P0 — bloqueantes (cerrado ✅)**
 
 - [x] Arreglar `CS1061` con `ICategoriaService`
-- [x] `dotnet build` en verde y `dotnet test` ejecutando (76/76)
+- [x] `dotnet build` en verde y `dotnet test` ejecutando (89/89)
 - [x] Paquete `Npgsql.EntityFrameworkCore.PostgreSQL` en la API
 - [x] `Infrastructure/DatabaseConfig.cs` + `AddDbContext` + `ConnectionStrings`
 - [x] Migración `InitialCreate` y aplicación al arrancar

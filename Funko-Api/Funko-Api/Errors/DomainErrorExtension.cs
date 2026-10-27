@@ -23,6 +23,16 @@ public static class DomainErrorExtensions {
                 Status = StatusCodes.Status400BadRequest,
                 Title = validationError.Message
             }),
+        ConflictError conflict => new ConflictObjectResult(new ProblemDetails {
+            Status = StatusCodes.Status409Conflict,
+            Title = "Conflicto",
+            Detail = conflict.Message
+        }),
+        BusinessRuleError businessRule => new UnprocessableEntityObjectResult(new ProblemDetails {
+            Status = StatusCodes.Status422UnprocessableEntity,
+            Title = "Regla de negocio incumplida",
+            Detail = businessRule.Message
+        }),
         _ => new ObjectResult(new ProblemDetails {
             Status = StatusCodes.Status500InternalServerError,
             Title = "Error interno del servidor"
