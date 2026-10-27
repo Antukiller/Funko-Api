@@ -62,3 +62,9 @@ app.Run();
 [JsonSerializable(typeof(IReadOnlyList<CategoriaDto>))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext {
 }
+
+/// <summary>
+/// Punto de entrada público para que los tests de integración puedan usar
+/// <c>WebApplicationFactory&lt;Program&gt;</c>.
+/// </summary>
+public partial class Program;

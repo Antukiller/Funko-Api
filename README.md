@@ -5,7 +5,7 @@
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/dotnet/csharp/)
 [![EF Core](https://img.shields.io/badge/EF%20Core-10-blue)](https://docs.microsoft.com/ef/core/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
-[![Tests](https://img.shields.io/badge/tests-81%20passing-brightgreen)](#-testing)
+[![Tests](https://img.shields.io/badge/tests-90%20passing-brightgreen)](#-testing)
 
 **API RESTful para gestionar un catálogo de Funkos**, desarrollada como práctica 3
 de la asignatura *Desarrollo Web en Entornos Servidor* (DAW).
@@ -30,7 +30,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 - ✅ **Validación**: FluentValidation en DTOs y en el modelo de dominio.
 - ⚠️ **Errores de dominio**: `NotFound` y `ValidationError` traducidos a Problem Details.
 - 🐘 **Persistencia**: EF Core 10 + PostgreSQL 17 con migraciones aplicadas al arrancar.
-- 🧪 **Testing**: 81 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
+- 🧪 **Testing**: 90 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
 
 ## 🛠️ Tecnologías
 
@@ -207,15 +207,22 @@ dotnet test --filter "FullyQualifiedName!~Postgre"
 | Tipo | Cantidad | Tecnología |
 |---|---|---|
 | Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 70 | NUnit, Moq, FluentAssertions |
-| Integración (repositorio contra PostgreSQL real) | 11 | Testcontainers |
+| Integración (repositorio y API real contra PostgreSQL) | 20 | Testcontainers, `WebApplicationFactory<Program>` |
 
-Cobertura actual de los 81 tests:
+Cobertura actual de los 90 tests:
 
 - `FunkoServiceTests` y `CategoriaServiceTests`: reglas y propagación de errores.
 - `CreateFunkoValidatorTests` / `UpdateFunkoValidatorTests`: validaciones de DTO.
 - `GlobalExceptionHandlerTests`: Problem Details con `traceId` y mapeo de excepciones.
 - `FunkoRepositoryTests`: consultas, búsqueda y borrado lógico sobre SQLite.
 - `FunkoRepositoryPostgreTests`: mapeo y migraciones contra PostgreSQL en contenedor.
+- `FunkosEndpointsPostgreTests`: endpoints reales sobre `WebApplicationFactory<Program>`
+  y PostgreSQL de Testcontainers (200, 201, 204, 400, 404, 409 y 422).
+
+Los tests de integración de la API arrancan el host real con
+`WebApplicationFactory<Program>` —de ahí el `public partial class Program;` al
+final de `Program.cs`— y aplican las migraciones al iniciar, igual que en
+producción.
 
 ## 🏗️ Arquitectura y estructura
 
@@ -344,7 +351,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 ## ✅ Checklist de la rúbrica — Práctica 3
 
 > **Última revisión:** 2026-10-27 · **Checkpoint:** fase 9
-> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (81/81).
+> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (90/90).
 >
 > **Leyenda:** ✅ cumple · 🟡 parcial / no conforme · ❌ no existe · ❓ no verificable
 > **Prioridad:** **P0** bloqueante · **P1** correctness · **P2** estilo · **P3** flujo de trabajo
@@ -359,7 +366,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 0.4 | README con uso, tests, Docker y justificación | ✅ | Este documento | — |
 | 0.5 | `docker compose up` levanta API + BD | ❌ | Fase 12 | Pend. |
 | 0.6 | Documentación en `/swagger` | ❌ | Solo OpenAPI JSON en `/openapi/v1.json` | P1 |
-| 0.7 | `dotnet test` en verde | ✅ | 81/81 | — |
+| 0.7 | `dotnet test` en verde | ✅ | 90/90 | — |
 | 0.8 | `dotnet build` sin errores | ✅ | 0 errores | — |
 | 0.9 | `bin/` y `obj/` fuera del repo (`.gitignore`) | ✅ | `.gitignore` + `git rm --cached` | — |
 | 0.10 | `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig` | ❌ | No existen | P2 |
@@ -471,7 +478,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 10.2 | Escritura autenticada; borrado solo Admin | ❌ | Pendiente (fase 10) | — |
 | 11.1 | Swagger/OpenAPI con comentarios XML | 🟡 | `AddOpenApi` sin XML docs ni UI | P1 |
 | 11.2 | Tests unitarios del servicio | ✅ | 17 casos en `FunkoServiceTests` | — |
-| 11.3 | Tests de integración con `WebApplicationFactory` | ❌ | Falta `public partial class Program;` | P1 |
+| 11.3 | Tests de integración con `WebApplicationFactory` | ✅ | `FunkosEndpointsPostgreTests`: 9 casos sobre el host real (200/201/204/400/404/409/422) | — |
 | 12.1 | Dockerfile multi-etapa + compose | ❌ | Pendiente (fase 12) | — |
 
 ### Transversales: estilo del profe
@@ -498,11 +505,10 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
 | Fases 1–9 + entregables (64 items) | 46 | 8 | 10 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 49 | 13 | 22 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 50 | 13 | 21 |
 
-> Todas las ❌ de las fases 10–12 son trabajo futuro. De las fases 1–9 quedan
-> abiertos `public partial class Program;` + test con `WebApplicationFactory` (11.3)
-> y la UI de Swagger (11.1); el resto son P2/P3 de estilo.
+> Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
+> las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.
 
 **Nota orientativa: 7/10** (P0 cerrado).
 
@@ -517,7 +523,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 **P0 — bloqueantes (cerrado ✅)**
 
 - [x] Arreglar `CS1061` con `ICategoriaService`
-- [x] `dotnet build` en verde y `dotnet test` ejecutando (81/81)
+- [x] `dotnet build` en verde y `dotnet test` ejecutando (90/90)
 - [x] Paquete `Npgsql.EntityFrameworkCore.PostgreSQL` en la API
 - [x] `Infrastructure/DatabaseConfig.cs` + `AddDbContext` + `ConnectionStrings`
 - [x] Migración `InitialCreate` y aplicación al arrancar
@@ -536,7 +542,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 - [x] Borrar `FunkoConfig`, `UpdateFrom`, `UnitTest1`
 - [x] Borrar `FunkoPatchRequestDto` (el PATCH usa DTOs tipados)
 - [x] Corregir el `IsDeleted` del update
-- [ ] `public partial class Program;` + test de integración
+- [x] `public partial class Program;` + test de integración
 
 **P2 — estilo (tres sesiones)**
 
