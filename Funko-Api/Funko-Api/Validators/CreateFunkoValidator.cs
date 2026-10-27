@@ -1,8 +1,8 @@
 using FluentValidation;
-using Funko_Api.Dto;
-using Funko_Api.Infrastructure.Interface;
+using Funko_Api.Dtos;
+using Funko_Api.Infrastructures.Interface;
 
-namespace Funko_Api.Validator;
+namespace Funko_Api.Validators;
 
 public class CreateFunkoValidator : AbstractValidator<CreateFunkoDto>, IScopedService {
     public CreateFunkoValidator() {

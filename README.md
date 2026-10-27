@@ -235,24 +235,25 @@ Funko-Api/                          # raíz del repositorio
 └── Funko-Api/                      # solución
     ├── Funko-Api.slnx
     ├── Funko-Api/                  # API
-    │   ├── Controller/             # endpoints (Funkos, Categorias)
-    │   ├── Dto/                    # CreateFunkoDto, UpdateFunkoDto, FunkoDto...
-    │   ├── Entities/               # AppDbContext
+    │   ├── Controllers/            # endpoints (Funkos, Categorias)
+    │   ├── Data/                   # AppDbContext
+    │   ├── Dtos/                   # CreateFunkoDto, UpdateFunkoDto, FunkoDto...
     │   ├── Errors/                 # DomainError, NotFound, ValidationError
-    │   ├── Infrastructure/         # DI, DatabaseConfig, migraciones al arrancar
-    │   ├── Mapper/                 # métodos de extensión entidad <-> DTO
+    │   ├── Infrastructures/        # DI, DatabaseConfig, migraciones al arrancar
+    │   ├── Mappers/                # métodos de extensión entidad <-> DTO
     │   ├── Migrations/             # migraciones de EF Core
     │   ├── Models/                 # Funko, Categoria
     │   ├── Repositories/           # IFunkoRepository, ICategoriaRepository
     │   ├── Services/               # IFunkoService, ICategoriaService
-    │   ├── Validator/              # validadores FluentValidation
+    │   ├── Validators/             # validadores FluentValidation
     │   ├── Program.cs
     │   └── appsettings*.json
     └── Funko-Api.Test/
+        ├── Integration/
+        ├── Middleware/
         ├── Repositories/
         ├── Services/
-        ├── Validator/
-        └── Dto/
+        └── Validator/
 ```
 
 Responsabilidades:
@@ -261,7 +262,7 @@ Responsabilidades:
 - **Service**: valida, coordina repositorios y decide qué error devolver.
 - **Repository**: acceso a datos con EF Core (`AsNoTracking` + `Include`).
 - **Errors**: errores de dominio independientes de HTTP.
-- **Infrastructure**: registro de dependencias y arranque de la base de datos.
+- **Infrastructures**: registro de dependencias y arranque de la base de datos.
 
 ## 🤔 Decisiones de diseño
 
@@ -485,8 +486,8 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 | # | Requisito | Estado | Evidencia | Prio |
 |---|---|---|---|---|
-| T.1 | Carpetas en plural (`Controllers/`, `Dtos/`, `Mappers/`, `Validators/`) | ❌ | `Controller/`, `Dto/`, `Mapper/`, `Validator/` | P2 |
-| T.2 | `Models/` para dominio y `Data/` para `DbContext` | ❌ | `Entities/` con `namespace ...Data` | P2 |
+| T.1 | Carpetas en plural (`Controllers/`, `Dtos/`, `Mappers/`, `Validators/`) | ✅ | `Controllers/`, `Dtos/`, `Mappers/`, `Validators/`, `Infrastructures/` | — |
+| T.2 | `Models/` para dominio y `Data/` para `DbContext` | ✅ | `Models/` + `Data/AppDbContext.cs` | — |
 | T.3 | DI explícito por `Infrastructures/*Config.cs` | ❌ | Scrutor + marker interfaces | P1 |
 | T.4 | XML docs en todo miembro público + `GenerateDocumentationFile` | ❌ | Solo métodos de controller; sin `<param>`/`<returns>` | P2 |
 | T.5 | Tests en `Unit/` e `Integration/` + `TestCategories.cs` | ❌ | Carpetas por tipo técnico | P2 |
@@ -505,7 +506,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
 | Fases 1–9 + entregables (64 items) | 46 | 8 | 10 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 51 | 12 | 21 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 53 | 12 | 19 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
 > las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.

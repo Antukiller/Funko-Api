@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Funko_Api.Infrastructure;
+namespace Funko_Api.Infrastructures;
 
 /// <summary>
 /// Configuración de la base de datos de la aplicación.

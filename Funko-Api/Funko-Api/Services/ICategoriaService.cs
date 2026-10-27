@@ -1,5 +1,5 @@
 using CSharpFunctionalExtensions;
-using Funko_Api.Dto;
+using Funko_Api.Dtos;
 using Funko_Api.Errors;
 
 namespace Funko_Api.Services;

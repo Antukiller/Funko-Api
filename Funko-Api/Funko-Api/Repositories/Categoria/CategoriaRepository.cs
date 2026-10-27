@@ -1,5 +1,5 @@
-﻿using Funko_Api.Data;
-using Funko_Api.Infrastructure.Interface;
+using Funko_Api.Data;
+using Funko_Api.Infrastructures.Interface;
 using Microsoft.EntityFrameworkCore;
 using CategoriaModel = Funko_Api.Models.Categoria;
 

@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Funko_Api.Dto;
+namespace Funko_Api.Dtos;
 
 public record FunkoDto(
     long Id,

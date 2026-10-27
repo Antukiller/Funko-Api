@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Funko_Api.Infrastructure;
+namespace Funko_Api.Infrastructures;
 
 /// <summary>
 /// Inicialización de la base de datos al arrancar la aplicación.

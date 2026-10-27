@@ -1,9 +1,9 @@
-﻿using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using FluentValidation;
-using Funko_Api.Dto;
+using Funko_Api.Dtos;
 using Funko_Api.Errors;
-using Funko_Api.Infrastructure.Interface;
-using Funko_Api.Mapper;
+using Funko_Api.Infrastructures.Interface;
+using Funko_Api.Mappers;
 using Funko_Api.Models;
 using Funko_Api.Repositories;
 using Funko_Api.Repositories.Categoria;

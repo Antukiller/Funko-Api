@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Funko_Api.Models;
-using Funko_Api.Validator;
+using Funko_Api.Validators;
 
 namespace Funko_Api.Test.Validator;
 

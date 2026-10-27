@@ -1,7 +1,7 @@
-﻿using Funko_Api.Infrastructure.Interface;
+using Funko_Api.Infrastructures.Interface;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Funko_Api.Infrastructure;
+namespace Funko_Api.Infrastructures;
 
 public static class DependencerProvider {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services) {

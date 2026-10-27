@@ -1,7 +1,7 @@
 using Serilog;
 using Serilog.Events;
 
-namespace Funko_Api.Infrastructure;
+namespace Funko_Api.Infrastructures;
 
 /// <summary>
 /// Configuración de Serilog: consola para desarrollo y fichero diario para trazas.

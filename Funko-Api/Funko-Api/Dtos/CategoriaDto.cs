@@ -1,3 +1,3 @@
-﻿namespace Funko_Api.Dto;
+namespace Funko_Api.Dtos;
 
 public record CategoriaDto(long Id, string Name);

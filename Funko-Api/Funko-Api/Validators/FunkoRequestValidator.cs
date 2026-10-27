@@ -1,8 +1,8 @@
-﻿using FluentValidation;
-using Funko_Api.Infrastructure.Interface;
+using FluentValidation;
+using Funko_Api.Infrastructures.Interface;
 using Funko_Api.Models;
 
-namespace Funko_Api.Validator;
+namespace Funko_Api.Validators;
 
 public class FunkoRequestValidator : AbstractValidator<Funko>, IScopedService {
     public FunkoRequestValidator() {

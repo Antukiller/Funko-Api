@@ -1,7 +1,7 @@
-﻿using Funko_Api.Dto;
+using Funko_Api.Dtos;
 using Funko_Api.Models;
 
-namespace Funko_Api.Mapper;
+namespace Funko_Api.Mappers;
 
 public static class FunkoMapper {
     public static FunkoDto ToDto(this Funko funko) => new(

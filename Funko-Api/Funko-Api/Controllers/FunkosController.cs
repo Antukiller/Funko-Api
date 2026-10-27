@@ -1,9 +1,9 @@
-using Funko_Api.Dto;
+using Funko_Api.Dtos;
 using Funko_Api.Errors;
 using Funko_Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Funko_Api.Controller;
+namespace Funko_Api.Controllers;
 
 /// <summary>
 /// API controller para gestionar Funkos.

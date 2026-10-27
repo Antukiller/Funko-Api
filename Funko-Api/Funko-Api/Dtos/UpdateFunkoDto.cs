@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Funko_Api.Dto;
+namespace Funko_Api.Dtos;
 
-public sealed record CreateFunkoDto {
+public sealed record UpdateFunkoDto {
     [Required(ErrorMessage = "El nombre es obligatorio.")]
     [StringLength(200, ErrorMessage = "El nombre no puede superar los 200 caracteres.")]
     public string Name { get; init; } = string.Empty;

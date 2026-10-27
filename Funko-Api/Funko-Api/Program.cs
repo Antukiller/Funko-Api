@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
-using Funko_Api.Dto;
-using Funko_Api.Infrastructure;
+using Funko_Api.Dtos;
+using Funko_Api.Infrastructures;
 using Funko_Api.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;

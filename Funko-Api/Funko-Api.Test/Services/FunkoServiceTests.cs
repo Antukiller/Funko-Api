@@ -1,12 +1,12 @@
 using CSharpFunctionalExtensions;
 using FluentAssertions;
-using Funko_Api.Dto;
+using Funko_Api.Dtos;
 using Funko_Api.Errors;
 using Funko_Api.Models;
 using Funko_Api.Repositories;
 using Funko_Api.Repositories.Categoria;
 using Funko_Api.Services;
-using Funko_Api.Validator;
+using Funko_Api.Validators;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
