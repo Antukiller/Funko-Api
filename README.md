@@ -493,7 +493,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | T.6 | Integración con `[Category("Integration")]` | ❌ | Testcontainers se ejecuta siempre (exige Docker) | P2 |
 | T.7 | Nombres de test `Metodo_Escenario_Resultado` | ✅ | En español | — |
 | T.8 | FluentAssertions (no `Assert.AreEqual`) | ✅ | Toda la suite | — |
-| T.9 | Mensajes de error y log en español | 🟡 | Errores de dominio sí; validaciones en inglés | P2 |
+| T.9 | Mensajes de error y log en español | ✅ | Dominio, validaciones y logs en español | — |
 | T.10 | Conventional Commits en español | 🟡 | Últimos commits sí; los antiguos no | P3 |
 | T.11 | Ramas `main` / `develop` / `feature-*` con merge explícito | 🟡 | `feature/Controller`; sin `main` ni merges | P3 |
 | T.12 | Tags `vX.Y.Z` | ❌ | Ninguno | P3 |
@@ -505,7 +505,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
 | Fases 1–9 + entregables (64 items) | 46 | 8 | 10 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 50 | 13 | 21 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 51 | 12 | 21 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
 > las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.
