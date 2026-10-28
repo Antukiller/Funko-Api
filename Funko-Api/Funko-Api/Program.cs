@@ -39,7 +39,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options => {
         return new BadRequestObjectResult(problem);
     };
 });
-builder.Services.AddOpenApi();
+builder.Services.AddSwaggerConfiguration();
 
 var app = builder.Build();
 
@@ -47,7 +47,9 @@ app.UseGlobalExceptionHandler();
 app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment()) {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Funko API v1"));
 }
 
 app.MapControllers();

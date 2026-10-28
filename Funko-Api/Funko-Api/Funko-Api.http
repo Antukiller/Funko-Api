@@ -1,11 +1,58 @@
 @Funko_Api_HostAddress = http://localhost:5052
 
-GET {{Funko_Api_HostAddress}}/todos/
+### Listar todos los funkos
+GET {{Funko_Api_HostAddress}}/api/funkos
 Accept: application/json
 
-###
-
-GET {{Funko_Api_HostAddress}}/todos/1
+### Buscar por nombre
+GET {{Funko_Api_HostAddress}}/api/funkos/buscar?nombre=Batman
 Accept: application/json
 
-###
+### Obtener un funko
+GET {{Funko_Api_HostAddress}}/api/funkos/1
+Accept: application/json
+
+### Crear un funko
+POST {{Funko_Api_HostAddress}}/api/funkos
+Content-Type: application/json
+
+{
+  "name": "Batman",
+  "price": 15.99,
+  "stock": 10,
+  "categoriaName": "Marvel"
+}
+
+### Actualizar un funko
+PUT {{Funko_Api_HostAddress}}/api/funkos/1
+Content-Type: application/json
+
+{
+  "name": "Batman",
+  "price": 19.99,
+  "stock": 8,
+  "categoriaName": "Marvel"
+}
+
+### Actualizar solo el precio
+PATCH {{Funko_Api_HostAddress}}/api/funkos/1/precio
+Content-Type: application/json
+
+19.99
+
+### Ajustar stock (negativo descuenta)
+PATCH {{Funko_Api_HostAddress}}/api/funkos/1/stock
+Content-Type: application/json
+
+-2
+
+### Eliminar un funko
+DELETE {{Funko_Api_HostAddress}}/api/funkos/1
+
+### Listar categorías
+GET {{Funko_Api_HostAddress}}/api/categorias
+Accept: application/json
+
+### Obtener una categoría
+GET {{Funko_Api_HostAddress}}/api/categorias/1
+Accept: application/json

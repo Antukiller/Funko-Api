@@ -44,6 +44,7 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 | FluentValidation | 12.2.0 | Validación de DTOs y dominio |
 | CSharpFunctionalExtensions | 3.7.0 | Patrón Result (`Result<T, DomainError>`) |
 | Serilog | 10.0.0 | Logging estructurado: consola + fichero diario |
+| Swashbuckle.AspNetCore | 10.2.3 | Swagger UI y OpenAPI con comentarios XML |
 | NUnit + Moq + FluentAssertions | 4.x / 4.x / 8.11 | Testing |
 | Testcontainers | 4.3 | Tests de integración con PostgreSQL real |
 
@@ -156,9 +157,9 @@ hay que ejecutar SQL a mano.
 
 ### 3. Documentación de la API
 
-En desarrollo está disponible el documento OpenAPI en
-`http://localhost:5052/openapi/v1.json`. La interfaz Swagger UI en `/swagger`
-está pendiente (P1).
+En desarrollo está disponible Swagger UI en `http://localhost:5052/swagger` y el
+documento OpenAPI en `/swagger/v1/swagger.json`. Se genera con Swashbuckle e
+incluye los comentarios XML del código.
 
 ## ⚙️ Configuración
 
@@ -367,7 +368,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 7. DTOs y validaciones | 🟡 |
 | 8. Configuración y logs | ✅ |
 | 9. Persistencia con EF Core | ✅ |
-| 10–12. Seguridad, Swagger, Docker | ⏳ pendientes |
+| 10–12. Seguridad y Docker | ⏳ pendientes |
 
 ---
 
@@ -388,7 +389,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 0.3 | Commits incrementales, uno por fase | 🟡 | Mejorando: `chore` de limpieza ya con Conventional Commits | P3 |
 | 0.4 | README con uso, tests, Docker y justificación | ✅ | Este documento | — |
 | 0.5 | `docker compose up` levanta API + BD | ❌ | Fase 12 | Pend. |
-| 0.6 | Documentación en `/swagger` | ❌ | Solo OpenAPI JSON en `/openapi/v1.json` | P1 |
+| 0.6 | Documentación en `/swagger` | ✅ | Swagger UI con Swashbuckle en `/swagger` | — |
 | 0.7 | `dotnet test` en verde | ✅ | 90/90 | — |
 | 0.8 | `dotnet build` sin errores | ✅ | 0 errores | — |
 | 0.9 | `bin/` y `obj/` fuera del repo (`.gitignore`) | ✅ | `.gitignore` + `git rm --cached` | — |
@@ -421,7 +422,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | # | Requisito | Estado | Evidencia | Prio |
 |---|---|---|---|---|
 | 3.1 | CRUD como Minimal API con `List<Funko>` | ❌ | No se mantiene: comparación en el README | P1 |
-| 3.2 | Verificado con `.http` o Swagger | 🟡 | `Funko-Api.http` sigue apuntando a `/todos` | P1 |
+| 3.2 | Verificado con `.http` o Swagger | ✅ | `Funko-Api.http` con todos los endpoints + Swagger UI | — |
 
 ### 4. La misma API con controladores
 
@@ -499,7 +500,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 |---|---|---|---|---|
 | 10.1 | JWT + BCrypt | ❌ | Pendiente (fase 10) | — |
 | 10.2 | Escritura autenticada; borrado solo Admin | ❌ | Pendiente (fase 10) | — |
-| 11.1 | Swagger/OpenAPI con comentarios XML | 🟡 | `AddOpenApi` sin XML docs ni UI | P1 |
+| 11.1 | Swagger/OpenAPI con comentarios XML | ✅ | Swashbuckle 10.2.3 + `IncludeXmlComments` | — |
 | 11.2 | Tests unitarios del servicio | ✅ | 17 casos en `FunkoServiceTests` | — |
 | 11.3 | Tests de integración con `WebApplicationFactory` | ✅ | `FunkosEndpointsPostgreTests`: 9 casos sobre el host real (200/201/204/400/404/409/422) | — |
 | 12.1 | Dockerfile multi-etapa + compose | ❌ | Pendiente (fase 12) | — |
@@ -527,11 +528,11 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
-| Fases 1–9 + entregables (64 items) | 51 | 4 | 9 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 64 | 7 | 13 |
+| Fases 1–9 + entregables (64 items) | 53 | 3 | 8 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 67 | 5 | 12 |
 
-> Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
-> las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.
+> Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). Las
+> fases 1–9 quedan cerradas; lo que resta es estilo P2/P3.
 
 **Nota orientativa: 7/10** (P0 cerrado).
 
@@ -571,7 +572,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 
 - [ ] Carpetas en plural + `Data/` + `Models/`
 - [x] DI por extension methods (adiós Scrutor)
-- [ ] Español en validaciones; XML docs; `[ProducesResponseType]`; Swagger UI en `/swagger`
+- [x] Español en validaciones; XML docs; `[ProducesResponseType]`; Swagger UI en `/swagger`
 - [x] Tests a `Unit/` + `Integration/` con categorías
 - [x] `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`
 - [ ] `doc/` numerada
