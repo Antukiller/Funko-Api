@@ -535,9 +535,6 @@ PostgreSQL de desarrollo se arranca a mano con el comando de *Inicio rápido*.
 
 Proyecto educativo de **Antukiller** para 2º de DAW.
 
-Material docente basado en las guías y repositorios de
-**[José Luis González Sánchez (joseluisgs)](https://github.com/joseluisgs)**
-(licencia [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)).
 El código se ha escrito para este proyecto; las ideas, estructura y convenciones
 proceden de su temario y de `TiendaDawApi-NetCore`.
 
