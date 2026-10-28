@@ -2,7 +2,7 @@ using FluentAssertions;
 using Funko_Api.Models;
 using Funko_Api.Validators;
 
-namespace Funko_Api.Test.Validator;
+namespace Funko_Api.Test.Unit.Validators;
 
 public class FunkoRequestValidatorTests {
     private readonly FunkoRequestValidator _validator = new();

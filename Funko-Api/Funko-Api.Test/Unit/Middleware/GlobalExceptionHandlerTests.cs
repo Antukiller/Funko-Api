@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Funko_Api.Test.Middleware;
+namespace Funko_Api.Test.Unit.Middleware;
 
+[Category(TestCategories.Unit)]
 [TestFixture]
 public class GlobalExceptionHandlerTests {
     [Test]

@@ -8,8 +8,9 @@ using Funko_Api.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
-namespace Funko_Api.Test.Services;
+namespace Funko_Api.Test.Unit.Services;
 
+[Category(TestCategories.Unit)]
 [TestFixture]
 public class CategoriaServiceTests {
     private Mock<ICategoriaRepository> _categoriaRepositoryMock = null!;

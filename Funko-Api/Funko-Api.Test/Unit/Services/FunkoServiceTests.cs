@@ -10,8 +10,9 @@ using Funko_Api.Validators;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
-namespace Funko_Api.Test.Services;
+namespace Funko_Api.Test.Unit.Services;
 
+[Category(TestCategories.Unit)]
 [TestFixture]
 public class FunkoServiceTests {
     private Mock<IFunkoRepository> _funkoRepositoryMock = null!;

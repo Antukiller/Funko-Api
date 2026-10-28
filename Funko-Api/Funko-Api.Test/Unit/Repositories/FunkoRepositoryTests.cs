@@ -5,8 +5,9 @@ using Funko_Api.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace Funko_Api.Test.Repositories;
+namespace Funko_Api.Test.Unit.Repositories;
 
+[Category(TestCategories.Unit)]
 [TestFixture]
 public class FunkoRepositoryTests {
     private SqliteConnection _connection = null!;

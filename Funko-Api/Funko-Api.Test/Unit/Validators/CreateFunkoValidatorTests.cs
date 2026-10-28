@@ -2,8 +2,9 @@ using FluentAssertions;
 using Funko_Api.Dtos;
 using Funko_Api.Validators;
 
-namespace Funko_Api.Test.Validator;
+namespace Funko_Api.Test.Unit.Validators;
 
+[Category(TestCategories.Unit)]
 [TestFixture]
 public class CreateFunkoValidatorTests {
     [Test]

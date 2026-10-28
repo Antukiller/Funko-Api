@@ -14,6 +14,7 @@ namespace Funko_Api.Test.Integration;
 /// (<c>WebApplicationFactory&lt;Program&gt;</c>) y un PostgreSQL de Testcontainers.
 /// Arranca la API como en producción: aplica las migraciones al iniciar.
 /// </summary>
+[Category(TestCategories.Integration)]
 [TestFixture]
 public sealed class FunkosEndpointsPostgreTests {
     private PostgreSqlContainer _container = null!;

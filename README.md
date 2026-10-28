@@ -201,7 +201,10 @@ así que la migración inicial incluye un `setval` para reposicionar `funko` y
 dotnet test
 
 # Solo lo que no necesita Docker
-dotnet test --filter "FullyQualifiedName!~Postgre"
+dotnet test --filter "FullyQualifiedName~Unit"
+
+# Solo integración (arranca contenedores)
+dotnet test --filter "FullyQualifiedName~Integration"
 ```
 
 | Tipo | Cantidad | Tecnología |
@@ -253,11 +256,9 @@ Funko-Api/                          # raíz del repositorio
     │   ├── Program.cs
     │   └── appsettings*.json
     └── Funko-Api.Test/
-        ├── Integration/
-        ├── Middleware/
-        ├── Repositories/
-        ├── Services/
-        └── Validator/
+        ├── Integration/            # arrancan la API o Postgres en Docker
+        ├── Unit/                   # Middleware, Repositories, Services, Validators
+        └── TestCategories.cs       # categorías Unit / Integration
 ```
 
 Responsabilidades:
@@ -511,8 +512,8 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | T.2 | `Models/` para dominio y `Data/` para `DbContext` | ✅ | `Models/` + `Data/AppDbContext.cs` | — |
 | T.3 | DI explícito por `Infrastructures/*Config.cs` | ✅ | `RepositoriesConfig`, `ServicesConfig`, `ValidatorsConfig` + `DatabaseConfig` | — |
 | T.4 | XML docs en todo miembro público + `GenerateDocumentationFile` | ✅ | 0 avisos CS1591; `Funko-Api.xml` generado | — |
-| T.5 | Tests en `Unit/` e `Integration/` + `TestCategories.cs` | ❌ | Carpetas por tipo técnico | P2 |
-| T.6 | Integración con `[Category("Integration")]` | ❌ | Testcontainers se ejecuta siempre (exige Docker) | P2 |
+| T.5 | Tests en `Unit/` e `Integration/` + `TestCategories.cs` | ✅ | `Unit/` (70), `Integration/TestContainers/` (20), `TestCategories.cs` | — |
+| T.6 | Integración con `[Category("Integration")]` | ✅ | Fixtures con `TestCategories.Integration` | — |
 | T.7 | Nombres de test `Metodo_Escenario_Resultado` | ✅ | En español | — |
 | T.8 | FluentAssertions (no `Assert.AreEqual`) | ✅ | Toda la suite | — |
 | T.9 | Mensajes de error y log en español | ✅ | Dominio, validaciones y logs en español | — |
@@ -527,7 +528,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
 | Fases 1–9 + entregables (64 items) | 51 | 4 | 9 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 62 | 7 | 15 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 64 | 7 | 13 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
 > las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.
@@ -571,7 +572,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 - [ ] Carpetas en plural + `Data/` + `Models/`
 - [x] DI por extension methods (adiós Scrutor)
 - [ ] Español en validaciones; XML docs; `[ProducesResponseType]`; Swagger UI en `/swagger`
-- [ ] Tests a `Unit/` + `Integration/` con categorías
+- [x] Tests a `Unit/` + `Integration/` con categorías
 - [x] `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`
 - [ ] `doc/` numerada
 

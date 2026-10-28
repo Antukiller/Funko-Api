@@ -5,8 +5,9 @@ using Funko_Api.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-namespace Funko_Api.Test.Repositories;
+namespace Funko_Api.Test.Integration.TestContainers;
 
+[Category(TestCategories.Integration)]
 [TestFixture]
 public sealed class FunkoRepositoryPostgreTests {
     private PostgreSqlContainer _container = null!;
