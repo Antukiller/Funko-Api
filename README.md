@@ -1,36 +1,78 @@
-# Funko-Api 🧸
+# Funko API 🧸
 
 [![.NET](https://img.shields.io/badge/.NET-10-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10-blue)](https://dotnet.microsoft.com/en-us/apps/aspnet)
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/dotnet/csharp/)
 [![EF Core](https://img.shields.io/badge/EF%20Core-10-blue)](https://docs.microsoft.com/ef/core/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)](https://www.postgresql.org/)
+[![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-green)](https://swagger.io/)
 [![Tests](https://img.shields.io/badge/tests-90%20passing-brightgreen)](#-testing)
 
 **API RESTful para gestionar un catálogo de Funkos**, desarrollada como práctica 3
-de la asignatura *Desarrollo Web en Entornos Servidor* (DAW).
+de la asignatura *Desarrollo Web en Entornos Servidor* (2º de DAW).
 
 Permite consultar, buscar, crear, actualizar y borrar funkos (borrado lógico) y
 consultar sus categorías, con persistencia real en PostgreSQL mediante Entity
-Framework Core.
+Framework Core, errores de negocio con el patrón Result y documentación viva en
+Swagger.
 
----
+## 🧭 Tabla de contenidos
+
+- [📋 Descripción](#-descripción)
+- [✨ Características](#-características)
+- [🛠️ Tecnologías](#-tecnologías)
+- [🚀 Inicio rápido](#-inicio-rápido)
+- [🔌 Endpoints](#-endpoints)
+- [🧱 Arquitectura](#-arquitectura)
+- [🗂️ Estructura del proyecto](#-estructura-del-proyecto)
+- [🧠 Decisiones de diseño](#-decisiones-de-diseño)
+- [🗄️ Modelo de datos](#-modelo-de-datos)
+- [⚙️ Configuración](#-configuración)
+- [🧪 Testing](#-testing)
+- [📖 Documentación](#-documentación)
+- [📌 Estado de la práctica](#-estado-de-la-práctica)
+- [🐳 Docker](#-docker)
+- [📄 Licencia y autor](#-licencia-y-autor)
 
 ## 📋 Descripción
 
 El recurso principal es el **Funko**, un muñeco de colección que pertenece a una
 **Categoría**. La API expone un CRUD completo más una búsqueda por nombre, aplica
-validaciones con FluentValidation, devuelve errores de negocio siguiendo el
-**patrón Result** y traduce los errores a HTTP con Problem Details.
+validaciones en dos niveles, devuelve errores de negocio siguiendo el **patrón
+Result** y los traduce a HTTP con **Problem Details** (RFC 7807).
 
-- 🧸 **CRUD de Funkos**: listar, consultar, crear, actualizar, parchear el precio y borrar.
-- 🔎 **Búsqueda por nombre**: `GET /api/funkos/buscar?nombre=...` (insensible a mayúsculas).
-- 🗂️ **Categorías**: consulta de todas y por id, en su propio controlador y servicio.
-- 🗑️ **Borrado lógico**: `IsDeleted` + `HasQueryFilter`, los borrados no aparecen.
-- ✅ **Validación**: FluentValidation en DTOs y en el modelo de dominio.
-- ⚠️ **Errores de dominio**: `NotFound` y `ValidationError` traducidos a Problem Details.
-- 🐘 **Persistencia**: EF Core 10 + PostgreSQL 17 con migraciones aplicadas al arrancar.
-- 🧪 **Testing**: 90 tests (unitarios con NUnit + Moq + FluentAssertions, integración con Testcontainers).
+- **Servidor** (este repositorio): API REST en ASP.NET Core, **sin estado**. Cada
+  petición es independiente; toda la información viaja en la URL, la cabecera y
+  el cuerpo JSON.
+- **Clientes**: cualquier cliente HTTP. Durante el desarrollo se usa
+  `Funko-Api.http`, Swagger UI, `Invoke-RestMethod` (PowerShell) o Bruno/Postman.
+- **Contrato**: JSON en peticiones y respuestas; errores en formato
+  [Problem Details](https://datatracker.ietf.org/doc/html/rfc7807).
+
+## ✨ Características
+
+- 🧸 **CRUD de Funkos**: listar, consultar, crear, actualizar, parchear el precio
+  y el stock, y borrar.
+- 🔎 **Búsqueda por nombre**: `GET /api/funkos/buscar?nombre=...`, sin distinguir
+  mayúsculas.
+- 🗂️ **Categorías**: listado y consulta por id, con su propio controlador y
+  servicio.
+- 🗑️ **Borrado lógico**: `IsDeleted` + `HasQueryFilter`; los borrados no aparecen
+  en ninguna consulta.
+- 🧭 **Patrón Result**: `Result<T, DomainError>` en los servicios, con traducción
+  centralizada a HTTP (`404`, `400`, `409`, `422`).
+- ⚠️ **Problem Details**: validación automática, errores de dominio y middleware
+  global de excepciones con `traceId`.
+- ✅ **Validación en dos niveles**: Data Annotations en los DTOs y FluentValidation
+  en DTOs y dominio, con mensajes en español.
+- 🎯 **Retorno tipado**: `ActionResult<T>` y `[ProducesResponseType]` en cada
+  endpoint.
+- 🐘 **Persistencia real**: EF Core 10 + PostgreSQL 17, migraciones aplicadas al
+  arrancar y datos semilla.
+- 📝 **Logging estructurado**: Serilog a consola y fichero diario, con una línea
+  por petición.
+- 📖 **Swagger**: Swashbuckle con los comentarios XML del código.
+- 🧪 **Testing**: 90 tests (70 unitarios y 20 de integración con Testcontainers).
 
 ## 🛠️ Tecnologías
 
@@ -45,66 +87,90 @@ validaciones con FluentValidation, devuelve errores de negocio siguiendo el
 | CSharpFunctionalExtensions | 3.7.0 | Patrón Result (`Result<T, DomainError>`) |
 | Serilog | 10.0.0 | Logging estructurado: consola + fichero diario |
 | Swashbuckle.AspNetCore | 10.2.3 | Swagger UI y OpenAPI con comentarios XML |
-| NUnit + Moq + FluentAssertions | 4.x / 4.x / 8.11 | Testing |
-| Testcontainers | 4.3 | Tests de integración con PostgreSQL real |
+| NUnit + Moq + FluentAssertions | 4.3.2 / 4.20.72 / 8.11.0 | Testing |
+| Testcontainers | 4.3.0 | Tests de integración con PostgreSQL real |
+| Coverlet | 6.0.4 | Cobertura de código |
 
-## 🧩 Modelo de datos
+Las versiones se gestionan de forma centralizada con **Central Package
+Management** en `Directory.Packages.props`.
 
-### `Funko` — cada propiedad justificada
+## 🚀 Inicio rápido
 
-| Propiedad | Tipo | Justificación |
-|---|---|---|
-| `Id` | `long` | Identificador único. `bigint` con `IDENTITY` en PostgreSQL; `long` evita quedarse corto y es coherente con las FKs. |
-| `Name` | `string` | Nombre comercial del funko. Obligatorio: sin nombre el recurso no tiene sentido. En BD y en el validador está limitado a 200 caracteres. |
-| `Price` | `decimal` | Precio en euros. `decimal` y no `double` para no arrastrar errores de redondeo binario; en BD `numeric(20,2)`. |
-| `Stock` | `int` | Unidades disponibles. `int` es más que suficiente para una tienda de coleccionables y no admite negativos (lo valida FluentValidation). |
-| `Categoria` | `Categoria` | Relación **1:N** obligatoria: todo funko pertenece a una categoría. Se configura con `HasOne/WithMany` y `DeleteBehavior.Restrict` para no borrar categorías en uso. |
-| `CreatedAt` | `DateTime` | Fecha de alta (auditoría). Se guarda en **UTC** (`DateTime.UtcNow`); Npgsql lo mapea a `timestamptz`. |
-| `UpdatedAt` | `DateTime` | Fecha de la última modificación. También UTC, para poder ordenar y auditar. |
-| `IsDeleted` | `bool` | Borrado lógico. `HasQueryFilter(x => !x.IsDeleted)` hace que EF excluya los borrados sin que el resto del código lo recuerde. Valor por defecto `false`. |
+### Requisitos
 
-### `Categoria`
+- [.NET SDK 10](https://dotnet.microsoft.com/download)
+- Docker (para PostgreSQL en desarrollo y para los tests de integración)
+- `dotnet-ef` como herramienta global: `dotnet tool install --global dotnet-ef`
 
-| Propiedad | Tipo | Justificación |
-|---|---|---|
-| `Id` | `long` | Identificador único de la categoría. |
-| `Name` | `string` | Nombre visible (Anime, Videojuegos, Cómics...). Obligatorio, máximo 100 caracteres. |
-| `Funkos` | `ICollection<Funko>` | Navegación inversa de la relación 1:N. Permite consultar los funkos de una categoría desde el modelo. |
+### 1. Base de datos
 
-**Relación:** una categoría tiene muchos funkos; un funko tiene exactamente una
-categoría. La FK se llama `CategoriaId` y la elimina en cascada **no** está
-permitida (`Restrict`): primero se reasignan o borran los funkos.
+```powershell
+docker run -d --name funko-postgres `
+  -e POSTGRES_DB=funkos -e POSTGRES_USER=funkos -e POSTGRES_PASSWORD=funkos `
+  -p 5432:5432 postgres:17-alpine
+```
 
-## 🌐 Cliente y servidor
+### 2. Arrancar la API
 
-- **Servidor** (este repositorio): API REST en ASP.NET Core, **sin estado**. Cada
-  petición es independiente, no hay sesión ni cookies; toda la información viaja
-  en la URL, la cabecera y el cuerpo JSON.
-- **Clientes**: cualquier cliente HTTP. Durante el desarrollo se usa
-  `Invoke-RestMethod` (PowerShell), Bruno/Postman o el propio navegador para los
-  `GET`. En el futuro podría consumirla una SPA o una app Blazor.
-- **Contrato**: JSON en peticiones y respuestas; errores en formato
-  [Problem Details (RFC 7807)](https://datatracker.ietf.org/doc/html/rfc7807).
+```powershell
+dotnet run --project Funko-Api/Funko-Api/Funko-Api.csproj
+```
+
+Al arrancar, `InitializeDatabaseAsync()` aplica las migraciones pendientes y la
+API queda escuchando en `http://localhost:5052`. Las tablas se crean solas.
+
+### 3. Swagger y `.http`
+
+- Swagger UI: `http://localhost:5052/swagger`
+- Documento OpenAPI: `http://localhost:5052/swagger/v1/swagger.json`
+- Peticiones de ejemplo: `Funko-Api/Funko-Api/Funko-Api.http`
+
+### 4. Tests
+
+```powershell
+# Toda la suite (necesita Docker para integración)
+dotnet test
+
+# Solo lo que no necesita Docker
+dotnet test --filter "FullyQualifiedName~Unit"
+
+# Solo integración (arranca contenedores)
+dotnet test --filter "FullyQualifiedName~Integration"
+```
 
 ## 🔌 Endpoints
 
 URL base en desarrollo: `http://localhost:5052`
 
-| Verbo | Ruta | Descripción | Éxito |
-|---|---|---|---|
-| `GET` | `/api/funkos` | Lista todos los funkos activos | `200` |
-| `GET` | `/api/funkos/{id}` | Obtiene un funko por id | `200` |
-| `GET` | `/api/funkos/buscar?nombre={texto}` | Busca por nombre (contiene, sin distinguir mayúsculas) | `200` |
-| `POST` | `/api/funkos` | Crea un funko | `201` + `Location` |
-| `PUT` | `/api/funkos/{id}` | Actualiza un funko completo | `200` |
-| `PATCH` | `/api/funkos/{id}/precio` | Actualiza solo el precio | `200` |
-| `PATCH` | `/api/funkos/{id}/stock` | Ajusta el stock: positivo repone, negativo descuenta | `200` |
-| `DELETE` | `/api/funkos/{id}` | Borrado lógico | `204` |
-| `GET` | `/api/categorias` | Lista todas las categorías | `200` |
-| `GET` | `/api/categorias/{id}` | Obtiene una categoría por id | `200` |
+### Funkos
 
-Errores habituales: `400` validación o parámetros incorrectos, `404` recurso no
-encontrado, `500` error no controlado.
+| Método | Ruta | Descripción | Éxito | Errores |
+|---|---|---|---|---|
+| `GET` | `/api/funkos` | Lista todos los funkos activos | `200` | — |
+| `GET` | `/api/funkos/buscar?nombre={texto}` | Busca por nombre (contiene, sin distinguir mayúsculas) | `200` | `400` |
+| `GET` | `/api/funkos/{id}` | Obtiene un funko por id | `200` | `404` |
+| `POST` | `/api/funkos` | Crea un funko | `201` + `Location` | `400`, `404`, `409` |
+| `PUT` | `/api/funkos/{id}` | Actualiza un funko completo | `200` | `400`, `404`, `409` |
+| `PATCH` | `/api/funkos/{id}/precio` | Actualiza solo el precio | `200` | `400`, `404` |
+| `PATCH` | `/api/funkos/{id}/stock` | Ajusta el stock: positivo repone, negativo descuenta | `200` | `400`, `404`, `422` |
+| `DELETE` | `/api/funkos/{id}` | Borrado lógico | `204` | `404` |
+
+### Categorías
+
+| Método | Ruta | Descripción | Éxito | Errores |
+|---|---|---|---|---|
+| `GET` | `/api/categorias` | Lista todas las categorías | `200` | — |
+| `GET` | `/api/categorias/{id}` | Obtiene una categoría por id | `200` | `404` |
+
+Significado de los errores:
+
+| Código | Cuándo |
+|---|---|
+| `400` | Datos inválidos o parámetros incorrectos |
+| `404` | El recurso no existe |
+| `409` | Nombre duplicado |
+| `422` | Regla de negocio incumplida (stock insuficiente) |
+| `500` | Error no controlado |
 
 ### Ejemplos
 
@@ -129,37 +195,246 @@ Invoke-RestMethod http://localhost:5052/api/funkos/6/stock -Method Patch -Body "
 Invoke-RestMethod http://localhost:5052/api/funkos/6 -Method Delete
 ```
 
-## 🚀 Puesta en marcha
+## 🧱 Arquitectura
 
-### Requisitos
+Arquitectura en capas: **Controller → Service → Repository → EF Core**.
 
-- [.NET SDK 10](https://dotnet.microsoft.com/download)
-- Docker (para PostgreSQL en desarrollo y para los tests de integración)
-- `dotnet-ef` como herramienta global: `dotnet tool install --global dotnet-ef`
-
-### 1. Base de datos
-
-```powershell
-docker run -d --name funko-postgres `
-  -e POSTGRES_DB=funkos -e POSTGRES_USER=funkos -e POSTGRES_PASSWORD=funkos `
-  -p 5432:5432 postgres:17-alpine
+```text
+Controllers → Services → Repositories → AppDbContext → PostgreSQL
+                 │            │
+                 └── Errors   └── Models
 ```
 
-### 2. Arrancar la API
+| Capa | Responsabilidad |
+|---|---|
+| `Controllers/` | Traduce HTTP ↔ dominio y documenta respuestas |
+| `Services/` | Reglas de negocio y coordinación de repositorios |
+| `Repositories/` | Acceso a datos con EF Core (`AsNoTracking` + `Include`) |
+| `Data/` | `AppDbContext`, configuración del modelo y semilla |
+| `Errors/` | Errores de dominio y traducción única a HTTP |
+| `Infrastructures/` | Registro de DI, Serilog, Swagger y base de datos |
+| `Middleware/` | Manejo global de excepciones |
 
-```powershell
-dotnet run --project Funko-Api/Funko-Api/Funko-Api.csproj
+Flujo de una petición:
+
+1. `GlobalExceptionHandler` envuelve todo el pipeline.
+2. Serilog registra la petición y su duración.
+3. El enrutado selecciona la acción del controlador.
+4. `[ApiController]` valida el modelo; si falla devuelve `400` con
+   `ValidationProblemDetails`.
+5. El servicio ejecuta la regla de negocio y devuelve
+   `Result<T, DomainError>`.
+6. `ToHttpResult` traduce el resultado a `200`/`201`/`204` o al error
+   correspondiente.
+7. La respuesta se serializa con `System.Text.Json`.
+
+Pipeline en `Program.cs`:
+
+```csharp
+var builder = WebApplication.CreateSlimBuilder(args);
+
+builder.Host.UseSerilog(Log.Logger);
+
+builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddRepositoriesConfiguration();
+builder.Services.AddServicesConfiguration();
+builder.Services.AddValidatorsConfiguration();
+builder.Services.AddControllers();
+builder.Services.AddSwaggerConfiguration();
+
+var app = builder.Build();
+
+app.UseGlobalExceptionHandler();
+app.UseSerilogRequestLogging();
+
+if (app.Environment.IsDevelopment()) {
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.MapControllers();
+
+await app.Services.InitializeDatabaseAsync();
+
+app.Run();
 ```
 
-Al arrancar, `InitializeDatabaseAsync()` aplica las migraciones pendientes y la
-API queda escuchando en `http://localhost:5052`. Las tablas se crean solas, no
-hay que ejecutar SQL a mano.
+## 🗂️ Estructura del proyecto
 
-### 3. Documentación de la API
+```text
+Funko-Api/                          # raíz del repositorio
+├── .editorconfig
+├── .gitignore
+├── Directory.Build.props
+├── Directory.Packages.props
+├── global.json
+├── README.md
+├── doc/                            # guías numeradas (01–10)
+└── Funko-Api/                      # solución
+    ├── Funko-Api.slnx
+    ├── Funko-Api/                  # API
+    │   ├── Controllers/            # endpoints (Funkos, Categorias)
+    │   ├── Data/                   # AppDbContext
+    │   ├── Dtos/                   # CreateFunkoDto, UpdateFunkoDto, FunkoDto...
+    │   ├── Errors/                 # DomainError, NotFound, ValidationError...
+    │   ├── Infrastructures/        # DI, DatabaseConfig, Serilog, Swagger
+    │   ├── Mappers/                # métodos de extensión entidad <-> DTO
+    │   ├── Migrations/             # migraciones de EF Core
+    │   ├── Models/                 # Funko, Categoria
+    │   ├── Repositories/           # IFunkoRepository, ICategoriaRepository
+    │   ├── Services/               # IFunkoService, ICategoriaService
+    │   ├── Validators/             # validadores FluentValidation
+    │   ├── Middleware/             # GlobalExceptionHandler
+    │   ├── Funko-Api.http          # peticiones de ejemplo
+    │   ├── Program.cs
+    │   └── appsettings*.json
+    └── Funko-Api.Test/
+        ├── Integration/            # arrancan la API o Postgres en Docker
+        ├── Unit/                   # Middleware, Repositories, Services, Validators
+        └── TestCategories.cs       # categorías Unit / Integration
+```
 
-En desarrollo está disponible Swagger UI en `http://localhost:5052/swagger` y el
-documento OpenAPI en `/swagger/v1/swagger.json`. Se genera con Swashbuckle e
-incluye los comentarios XML del código.
+## 🧠 Decisiones de diseño
+
+### PostgreSQL en desarrollo y en producción
+
+Se descartó SQLite en desarrollo. Una migración de EF Core **no es portable entre
+proveedores** (tipos y SQL distintos), así que mantener dos proveedores obliga a
+duplicar migraciones o a usar `EnsureCreated`, que no evoluciona el esquema. Con
+PostgreSQL en ambos entornos hay un único juego de migraciones, los tests de
+integración prueban el mismo motor y la fase 12 (Docker) no requiere cambios.
+El coste es tener Docker arrancado para desarrollar.
+
+### Migraciones en lugar de `EnsureCreated`
+
+`EnsureCreated()` crea el esquema una vez y no registra nada: si la base ya
+existe, ignora los cambios del modelo en silencio. Las migraciones son la
+historia versionada del esquema, permiten aplicar solo lo pendiente sobre una
+base con datos y quedan registradas en `__EFMigrationsHistory`.
+
+### Minimal API vs. controladores
+
+La fase 3 (Minimal API con `List<Funko>`) no se mantiene; se comparó y se optó
+por controladores para el proyecto final:
+
+| Criterio | Minimal API | Controladores |
+|---|---|---|
+| Cantidad de código inicial | Muy poco, todo en `Program.cs` | Más ceremonia (una clase por recurso) |
+| Organización al crecer | Se dispersa en métodos y grupos | Cada recurso en su clase |
+| Model binding y validación | Manual o con filtros limitados | `[ApiController]`, `[FromBody]`, `[FromQuery]` |
+| Problem Details | Hay que construirlo | Integrado con validación automática |
+| Documentación XML / Swagger | Requiere configuración extra | Integrada |
+| Testing | Más difícil de aislar | Se instancia el controlador o `WebApplicationFactory` |
+
+Con 10 endpoints, DTOs y validadores, los controladores ofrecen una estructura
+más clara.
+
+### Patrón Result y Problem Details
+
+Los servicios devuelven `Result<T, DomainError>` de `CSharpFunctionalExtensions`.
+El dominio no conoce HTTP: `NotFound`, `ValidationError`, `ConflictError` y
+`BusinessRuleError` se traducen a `404`, `400`, `409` y `422` en un único punto,
+`Errors/DomainErrorExtension.cs`. Las reglas de negocio se pueden testear sin
+levantar el servidor.
+
+Las excepciones no controladas no llegan al cliente:
+`Middleware/GlobalExceptionHandler.cs` las captura, las registra y responde con
+`ProblemDetails` (`application/problem+json`) incluyendo `traceId` para
+correlacionar la respuesta con la traza del servidor.
+
+### DTO sin `IsDeleted`
+
+`FunkoDto` no expone `IsDeleted`: es un detalle de persistencia. El borrado
+lógico se aplica con `HasQueryFilter`, así que un funko borrado simplemente no
+existe para el cliente (`404`).
+
+### Sin `[Produces]` a nivel de clase
+
+Los endpoints documentan sus códigos con `[ProducesResponseType]`, pero no se
+pone `[Produces("application/json")]` en el controlador: ese atributo forzaría
+también el content type de los errores a `application/json` y rompería
+`application/problem+json`. Swagger deduce el `application/json` de los tipos
+declarados.
+
+### FK explícita
+
+`Funko` tiene `CategoriaId` como propiedad real y la relación se configura con
+`HasForeignKey(x => x.CategoriaId)`. Evita una *shadow property* y deja la FK
+visible en el modelo.
+
+### Logging con Serilog
+
+Serilog sustituye al logger por defecto y escribe en dos sitios: consola (formato
+compacto para desarrollo) y `logs/funko-AAAAMMDD.log` (rotación diaria, 7 días).
+Los niveles de `Microsoft` y EF Core se suben a `Warning` para que el log de
+negocio no se ahogue entre trazas del framework. `UseSerilogRequestLogging()`
+deja una línea por petición con método, ruta, código de estado y milisegundos.
+
+### Configuración de build centralizada
+
+`global.json` fija el SDK 10.0.101 con `rollForward: latestFeature`,
+`Directory.Build.props` aplica `LangVersion 14`, `Nullable`, `ImplicitUsings` y
+`TreatWarningsAsErrors` a todos los proyectos, y `Directory.Packages.props`
+centraliza las versiones (CPM): los `.csproj` no llevan `Version`.
+`.editorconfig` fija LF, 4 espacios y el estilo de C#.
+
+### Inyección de dependencias explícita
+
+Cada aspecto tiene su `Infrastructures/*Config.cs` con un extension method:
+`AddDatabaseConfiguration`, `AddRepositoriesConfiguration`,
+`AddServicesConfiguration` y `AddValidatorsConfiguration`. Se descartó el escaneo
+por reflexión con Scrutor y las interfaces marcador porque el registro explícito
+se lee de un vistazo y falla en el arranque, no en la primera petición.
+
+### Datos semilla con `HasData`
+
+Los seeds viajan dentro de la migración, así que cualquier entorno arranca con
+las 3 categorías y los 5 funkos. Los ids son explícitos y la migración incluye un
+`setval` para reposicionar las secuencias de identidad; sin él, el primer `POST`
+chocaría contra la clave primaria.
+
+## 🗄️ Modelo de datos
+
+### `Funko` — cada propiedad justificada
+
+| Propiedad | Tipo | Justificación |
+|---|---|---|
+| `Id` | `long` | Identificador único. `bigint` con `IDENTITY` en PostgreSQL; `long` evita quedarse corto y es coherente con las FKs. |
+| `Name` | `string` | Nombre comercial del funko. Obligatorio: sin nombre el recurso no tiene sentido. En BD y en el validador está limitado a 200 caracteres. |
+| `Price` | `decimal` | Precio en euros. `decimal` y no `double` para no arrastrar errores de redondeo binario; en BD `numeric(20,2)`. |
+| `Stock` | `int` | Unidades disponibles. `int` es más que suficiente para una tienda de coleccionables y no admite negativos (lo valida FluentValidation). |
+| `CategoriaId` | `long` | FK explícita a la categoría. |
+| `Categoria` | `Categoria` | Relación **1:N** obligatoria: todo funko pertenece a una categoría. Se configura con `HasOne/WithMany` y `DeleteBehavior.Restrict` para no borrar categorías en uso. |
+| `CreatedAt` | `DateTime` | Fecha de alta (auditoría). Se guarda en **UTC** (`DateTime.UtcNow`); Npgsql lo mapea a `timestamptz`. |
+| `UpdatedAt` | `DateTime` | Fecha de la última modificación. También UTC, para poder ordenar y auditar. |
+| `IsDeleted` | `bool` | Borrado lógico. `HasQueryFilter(x => !x.IsDeleted)` hace que EF excluya los borrados sin que el resto del código lo recuerde. Valor por defecto `false`. |
+
+### `Categoria`
+
+| Propiedad | Tipo | Justificación |
+|---|---|---|
+| `Id` | `long` | Identificador único de la categoría. |
+| `Name` | `string` | Nombre visible (Anime, Videojuegos, Cómics...). Obligatorio, máximo 100 caracteres. |
+| `Funkos` | `ICollection<Funko>` | Navegación inversa de la relación 1:N. |
+
+**Relación:** una categoría tiene muchos funkos; un funko tiene exactamente una
+categoría. La FK es `CategoriaId` y el borrado en cascada **no** está permitido
+(`Restrict`): primero se reasignan o borran los funkos.
+
+### Migraciones
+
+| Migración | Cambio |
+|---|---|
+| `InitialCreate` | Tablas, relaciones, índices, semilla y `setval` |
+| `AmpliarLongitudNombreFunko` | Nombre de 100 a 200 caracteres |
+
+```powershell
+# Crear una migración tras cambiar el modelo
+dotnet ef migrations add NombreDescritivo --project Funko-Api/Funko-Api/Funko-Api.csproj
+
+# Aplicarlas sin arrancar la API
+dotnet ef database update --project Funko-Api/Funko-Api/Funko-Api.csproj
+```
 
 ## ⚙️ Configuración
 
@@ -180,182 +455,58 @@ $env:ConnectionStrings__DefaultConnection = "Host=mi-servidor;Database=funkos;Us
 Si la cadena no existe, `AddDatabaseConfiguration` lanza una excepción al arrancar
 (*fail-fast*): es mejor fallar al inicio que descubrirlo en la primera petición.
 
-## 🗃️ Migraciones
+### Serilog
 
-```powershell
-# Crear una migración tras cambiar el modelo
-dotnet ef migrations add NombreDescritivo --project Funko-Api/Funko-Api/Funko-Api.csproj
-
-# Aplicarlas sin arrancar la API
-dotnet ef database update --project Funko-Api/Funko-Api/Funko-Api.csproj
-```
-
-Detalle importante: los datos semilla se insertan con `HasData` e ids explícitos.
-Como las columnas son `IDENTITY BY DEFAULT`, PostgreSQL **no avanza la secuencia**,
-así que la migración inicial incluye un `setval` para reposicionar `funko` y
-`categoria`. Sin eso, el primer `POST` chocaría contra la clave primaria.
+- Consola: formato compacto para desarrollo.
+- Fichero: `logs/funko-AAAAMMDD.log`, rotación diaria y 7 días de retención.
+- `UseSerilogRequestLogging()` registra método, ruta, estado y duración.
 
 ## 🧪 Testing
-
-```powershell
-# Toda la suite (necesita Docker para los tests de integración)
-dotnet test
-
-# Solo lo que no necesita Docker
-dotnet test --filter "FullyQualifiedName~Unit"
-
-# Solo integración (arranca contenedores)
-dotnet test --filter "FullyQualifiedName~Integration"
-```
 
 | Tipo | Cantidad | Tecnología |
 |---|---|---|
 | Unitarios (servicios, validadores, middleware, repos con SQLite en memoria) | 70 | NUnit, Moq, FluentAssertions |
 | Integración (repositorio y API real contra PostgreSQL) | 20 | Testcontainers, `WebApplicationFactory<Program>` |
 
-Cobertura actual de los 90 tests:
+Qué cubre cada bloque:
 
 - `FunkoServiceTests` y `CategoriaServiceTests`: reglas y propagación de errores.
 - `CreateFunkoValidatorTests` / `UpdateFunkoValidatorTests`: validaciones de DTO.
-- `GlobalExceptionHandlerTests`: Problem Details con `traceId` y mapeo de excepciones.
+- `GlobalExceptionHandlerTests`: Problem Details con `traceId` y mapeo de
+  excepciones.
 - `FunkoRepositoryTests`: consultas, búsqueda y borrado lógico sobre SQLite.
-- `FunkoRepositoryPostgreTests`: mapeo y migraciones contra PostgreSQL en contenedor.
-- `FunkosEndpointsPostgreTests`: endpoints reales sobre `WebApplicationFactory<Program>`
-  y PostgreSQL de Testcontainers (200, 201, 204, 400, 404, 409 y 422).
+- `FunkoRepositoryPostgreTests`: mapeo y migraciones contra PostgreSQL en
+  contenedor.
+- `FunkosEndpointsPostgreTests`: endpoints reales sobre
+  `WebApplicationFactory<Program>` y PostgreSQL de Testcontainers
+  (200, 201, 204, 400, 404, 409 y 422).
 
-Los tests de integración de la API arrancan el host real con
+Los tests de integración arrancan el host real con
 `WebApplicationFactory<Program>` —de ahí el `public partial class Program;` al
 final de `Program.cs`— y aplican las migraciones al iniciar, igual que en
 producción.
 
-## 🏗️ Arquitectura y estructura
+## 📖 Documentación
 
-Arquitectura en capas: **Controller → Service → Repository → EF Core**.
+Guías numeradas en `doc/`, con el mismo orden en que se construyó el proyecto:
 
-```
-Funko-Api/                          # raíz del repositorio
-├── .editorconfig
-├── .gitignore
-├── Directory.Build.props
-├── Directory.Packages.props
-├── global.json
-├── README.md
-└── Funko-Api/                      # solución
-    ├── Funko-Api.slnx
-    ├── Funko-Api/                  # API
-    │   ├── Controllers/            # endpoints (Funkos, Categorias)
-    │   ├── Data/                   # AppDbContext
-    │   ├── Dtos/                   # CreateFunkoDto, UpdateFunkoDto, FunkoDto...
-    │   ├── Errors/                 # DomainError, NotFound, ValidationError
-    │   ├── Infrastructures/        # DI, DatabaseConfig, migraciones al arrancar
-    │   ├── Mappers/                # métodos de extensión entidad <-> DTO
-    │   ├── Migrations/             # migraciones de EF Core
-    │   ├── Models/                 # Funko, Categoria
-    │   ├── Repositories/           # IFunkoRepository, ICategoriaRepository
-    │   ├── Services/               # IFunkoService, ICategoriaService
-    │   ├── Validators/             # validadores FluentValidation
-    │   ├── Program.cs
-    │   └── appsettings*.json
-    └── Funko-Api.Test/
-        ├── Integration/            # arrancan la API o Postgres en Docker
-        ├── Unit/                   # Middleware, Repositories, Services, Validators
-        └── TestCategories.cs       # categorías Unit / Integration
-```
+| Guía | Contenido |
+|---|---|
+| [`01-configuracion-proyectos-dotnet.md`](doc/01-configuracion-proyectos-dotnet.md) | Solución, CPM, SDK y estilo |
+| [`02-arquitectura-pipeline-http.md`](doc/02-arquitectura-pipeline-http.md) | Capas, flujo y pipeline |
+| [`03-inyeccion-dependencias.md`](doc/03-inyeccion-dependencias.md) | Registro explícito y ciclos de vida |
+| [`04-controladores-rest.md`](doc/04-controladores-rest.md) | Endpoints, retorno tipado y `.http` |
+| [`05-validacion-dtos-mapeo.md`](doc/05-validacion-dtos-mapeo.md) | DTOs, validación y mappers |
+| [`06-patron-result-errores.md`](doc/06-patron-result-errores.md) | Result, errores y Problem Details |
+| [`07-ef-core-postgresql.md`](doc/07-ef-core-postgresql.md) | Modelo, soft delete y migraciones |
+| [`08-testing.md`](doc/08-testing.md) | Unit/Integration, Testcontainers y filtros |
+| [`09-documentacion-swagger.md`](doc/09-documentacion-swagger.md) | Swashbuckle y comentarios XML |
+| [`10-rubrica.md`](doc/10-rubrica.md) | Checklist completa de la rúbrica |
 
-Responsabilidades:
+Además, la API se documenta sola en `/swagger`, generada con Swashbuckle a partir
+de los comentarios XML.
 
-- **Controller**: traduce HTTP ↔ dominio. No contiene reglas de negocio.
-- **Service**: valida, coordina repositorios y decide qué error devolver.
-- **Repository**: acceso a datos con EF Core (`AsNoTracking` + `Include`).
-- **Errors**: errores de dominio independientes de HTTP.
-- **Infrastructures**: registro de dependencias y arranque de la base de datos.
-
-## 🤔 Decisiones de diseño
-
-### PostgreSQL en desarrollo y en producción
-
-Se descartó SQLite en desarrollo. Una migración de EF Core **no es portable entre
-proveedores** (tipos y SQL distintos), así que mantener dos proveedores obliga a
-duplicar migraciones o a usar `EnsureCreated`, que no evoluciona el esquema. Con
-PostgreSQL en ambos entornos hay un único juego de migraciones, los tests de
-integración prueban el mismo motor y la fase 12 (Docker) no requiere cambios.
-El coste es tener Docker arrancado para desarrollar.
-
-### Migraciones en lugar de `EnsureCreated`
-
-`EnsureCreated()` crea el esquema una vez y no registra nada: si la base ya
-existe, ignora los cambios del modelo en silencio. Las migraciones son la
-historia versionada del esquema, permiten aplicar solo lo pendiente sobre una
-base con datos y quedan registradas en `__EFMigrationsHistory`.
-
-### Minimal API vs. Controladores
-
-La fase 3 (Minimal API con `List<Funko>`) no se mantiene; se comparó y se optó
-por controladores para el proyecto final:
-
-| Criterio | Minimal API | Controladores |
-|---|---|---|
-| Cantidad de código inicial | Muy poco, todo en `Program.cs` | Más ceremonia (una clase por recurso) |
-| Organización al crecer | Se dispersa en métodos y grupos | Cada recurso en su clase |
-| Model binding y validación | Manual o con filtros limitados | `[ApiController]`, `[FromBody]`, `[FromQuery]` |
-| Problem Details | Hay que construirlo | Integrado con validación automática |
-| Documentación XML / Swagger | Requiere configuración extra | Integrada |
-| Testing | Más difícil de aislar | Se instancia el controlador o `WebApplicationFactory` |
-
-Con 10 endpoints, DTOs, validadores y (pronto) autenticación por roles, los
-controladores ofrecen una estructura más clara.
-
-### Patrón Result
-
-Los servicios devuelven `Result<T, DomainError>` de `CSharpFunctionalExtensions`.
-El dominio no conoce HTTP: `NotFound` y `ValidationError` se traducen a Problem
-Details en un único punto, `Errors/DomainErrorExtension.cs`. Ventaja: las reglas
-de negocio se pueden testear sin levantar el servidor.
-
-Las excepciones no controladas (fallos de BD, timeouts, bugs) no llegan al
-cliente: `Middleware/GlobalExceptionHandler.cs` las captura, las registra en el
-log y responde con Problem Details (`application/problem+json`) incluyendo
-`traceId` para correlacionar la respuesta con la traza del servidor.
-
-### Logging con Serilog
-
-Serilog sustituye al logger por defecto y escribe en dos sitios: consola (formato
-compacto para desarrollo) y `logs/funko-AAAAMMDD.log` (rotación diaria, 7 días).
-Los niveles de `Microsoft` y EF Core se suben a `Warning` para que el log de
-negocio no se ahogue entre trazas del framework. `UseSerilogRequestLogging()`
-deja una línea por petición con método, ruta, código de estado y milisegundos.
-
-### Configuración de build centralizada
-
-`global.json` fija el SDK 10.0.101 con `rollForward: latestFeature`,
-`Directory.Build.props` aplica `LangVersion 14`, `Nullable`, `ImplicitUsings` y
-`TreatWarningsAsErrors` a todos los proyectos, y `Directory.Packages.props`
-centraliza las versiones (Central Package Management): los `.csproj` no llevan
-`Version`. `.editorconfig` fija LF, 4 espacios y el estilo de C#.
-
-### Inyección de dependencias explícita
-
-Cada aspecto tiene su `Infrastructures/*Config.cs` con un extension method:
-`AddDatabaseConfiguration`, `AddRepositoriesConfiguration`,
-`AddServicesConfiguration` y `AddValidatorsConfiguration`. Se descartó el escaneo
-por reflexión con Scrutor y las interfaces marcador (`IScopedService`...) porque
-el registro explícito se lee de un vistazo y falla en el arranque, no en la
-primera petición.
-
-### Datos semilla con `HasData`
-
-Los seeds viajan dentro de la migración, así que cualquier entorno arranca con
-las 3 categorías y los 5 funkos. El `setval` de la migración corrige la secuencia
-de identidad (ver sección de migraciones).
-
-## 🐳 Docker
-
-Pendiente de la fase 12: `Dockerfile` multi-etapa y `docker-compose.yml` para
-levantar API + PostgreSQL con `docker compose up`. Mientras tanto, el contenedor
-de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
-*Puesta en marcha*.
-
-## 📌 Estado del proyecto
+## 📌 Estado de la práctica
 
 | Fase | Estado |
 |---|---|
@@ -365,233 +516,22 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | 4. Controladores | ✅ |
 | 5. Inyección de dependencias | ✅ |
 | 6. Patrón Result | ✅ |
-| 7. DTOs y validaciones | 🟡 |
+| 7. DTOs y validaciones | ✅ |
 | 8. Configuración y logs | ✅ |
 | 9. Persistencia con EF Core | ✅ |
 | 10–12. Seguridad y Docker | ⏳ pendientes |
 
----
+Resumen de la rúbrica: **59 ✅ / 2 🟡 / 3 ❌** en las fases 1–9 y
+**73 ✅ / 4 🟡 / 7 ❌** en total. La checklist completa, con evidencias y
+prioridades, está en [`doc/10-rubrica.md`](doc/10-rubrica.md).
 
-## ✅ Checklist de la rúbrica — Práctica 3
+## 🐳 Docker
 
-> **Última revisión:** 2026-10-27 · **Checkpoint:** fase 9
-> **Verificado con:** `dotnet build` (0 errores) y `dotnet test` (90/90).
->
-> **Leyenda:** ✅ cumple · 🟡 parcial / no conforme · ❌ no existe · ❓ no verificable
-> **Prioridad:** **P0** bloqueante · **P1** correctness · **P2** estilo · **P3** flujo de trabajo
+La fase 12 añadirá `Dockerfile` multi-etapa y `docker-compose.yml` para levantar
+API + PostgreSQL con `docker compose up`. Mientras tanto, el contenedor de
+PostgreSQL de desarrollo se arranca a mano con el comando de *Inicio rápido*.
 
-### 0. Entregables generales
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 0.1 | Repositorio en GitHub llamado `FunkoApp` | 🟡 | Repo `Funko-Api`, proyecto `Funko-Api`, namespace `Funko_Api` | P2 |
-| 0.2 | Solución en formato `.slnx` | ✅ | `Funko-Api/Funko-Api.slnx` | — |
-| 0.3 | Commits incrementales, uno por fase | 🟡 | Mejorando: `chore` de limpieza ya con Conventional Commits | P3 |
-| 0.4 | README con uso, tests, Docker y justificación | ✅ | Este documento | — |
-| 0.5 | `docker compose up` levanta API + BD | ❌ | Fase 12 | Pend. |
-| 0.6 | Documentación en `/swagger` | ✅ | Swagger UI con Swashbuckle en `/swagger` | — |
-| 0.7 | `dotnet test` en verde | ✅ | 90/90 | — |
-| 0.8 | `dotnet build` sin errores | ✅ | 0 errores | — |
-| 0.9 | `bin/` y `obj/` fuera del repo (`.gitignore`) | ✅ | `.gitignore` + `git rm --cached` | — |
-| 0.10 | `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig` | ❌ | No existen | P2 |
-| 0.11 | Carpeta `doc/` con guías numeradas | ❌ | No existe | P2 |
-| 0.12 | Sin código muerto | ✅ | Eliminados `FunkoConfig`, `UpdateFrom`, `FunkoPatchRequestDto` y `UnitTest1` | — |
-
-### 1. Define tu recurso
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 1.1 | Propiedades de `Funko` enumeradas | ✅ | `Models/Funko.cs` | — |
-| 1.2 | Cada propiedad justificada por escrito | ✅ | Sección *Modelo de datos* | — |
-| 1.3 | Cliente y servidor identificados | ✅ | Sección *Cliente y servidor* | — |
-
-### 2. Diseña la API en papel
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 2.1 | Tabla de endpoints (verbo, ruta, descripción, código de éxito) | ✅ | Sección *Endpoints* | — |
-| 2.2 | Listar todos | ✅ | `GET /api/funkos` → 200 | — |
-| 2.3 | Consultar por ID | ✅ | `GET /api/funkos/{id}` → 200 / 404 | — |
-| 2.4 | Crear | ✅ | `POST /api/funkos` → 201 | — |
-| 2.5 | Actualizar completo | ✅ | `PUT /api/funkos/{id}` → 200 | — |
-| 2.6 | Eliminar | ✅ | `DELETE /api/funkos/{id}` → 204 | — |
-| 2.7 | **Buscar por nombre** | ✅ | `GET /api/funkos/buscar?nombre=...` | — |
-
-### 3. Primera API (Minimal API)
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 3.1 | CRUD como Minimal API con `List<Funko>` | ❌ | No se mantiene: comparación en el README | P1 |
-| 3.2 | Verificado con `.http` o Swagger | ✅ | `Funko-Api.http` con todos los endpoints + Swagger UI | — |
-
-### 4. La misma API con controladores
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 4.1 | CRUD con `FunkosController` | ✅ | `Controller/FunkosController.cs` | — |
-| 4.2 | Comparación de enfoques en el README | ✅ | Sección *Decisiones de diseño* | — |
-| 4.3 | Retorno tipado `ActionResult<T>` | ❌ | Casi todo `IActionResult` | P1 |
-| 4.4 | `[ProducesResponseType]` por código | ❌ | Ninguno | P2 |
-| 4.5 | Un controlador por agregado (`ICategoriaService`) | ✅ | `CategoriasController` usa `ICategoriaService` | — |
-
-### 5. Inyección de dependencias completa
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 5.1 | `IFunkoService` / `FunkoService` | ✅ | `Services/` | — |
-| 5.2 | `IFunkoRepository` / `FunkoRepository` | ✅ | `Repositories/Funko/` | — |
-| 5.3 | Repositorio en memoria `Dictionary<long, Funko>` | ❌ | Se pasó directo a EF (documentado) | P1 |
-| 5.4 | Ciclos de vida correctos | ✅ | `AddScoped` explícito por capa en `Infrastructures/*Config.cs` | — |
-| 5.5 | Constructor primario | ✅ | Service, repo y controller | — |
-| 5.6 | **`AppDbContext` registrado en DI** | ✅ | `Infrastructures/DatabaseConfig.cs` | — |
-
-### 6. Errores con patrón Result
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 6.1 | `Result<T>` en los servicios | ✅ | `CSharpFunctionalExtensions` | — |
-| 6.2 | Error: Funko no encontrado | ✅ | `NotFound` | — |
-| 6.3 | Error: **nombre duplicado** | ✅ | `ConflictError.Duplicate` → 409; comprobado con `ExistsByNameAsync` en create y update | — |
-| 6.4 | Error: **stock insuficiente** | ✅ | `BusinessRuleError.StockInsuficiente` → 422 en `PATCH /api/funkos/{id}/stock` | — |
-| 6.5 | Manejador global → Problem Details | ✅ | `Middleware/GlobalExceptionHandler.cs`: 500/409/408/400 con `traceId`, `instance` y `timestamp` | — |
-| 6.6 | Traducción `DomainError` → HTTP centralizada | ✅ | `ToHttpResult`/`ToHttpResult<T>` únicos en `Errors/DomainErrorExtension.cs` | — |
-| 6.7 | Repositorio no decide errores de negocio | ✅ | Repositorios devuelven entidad/`null`; el servicio crea `NotFound`/`ValidationError` | — |
-
-### 7. DTOs, validaciones y mapeadores
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 7.1 | `CreateFunkoDto`, `UpdateFunkoDto`, `FunkoDto` | ✅ | `Dto/` | — |
-| 7.2 | **Data Annotations** | ✅ | Anotaciones en los DTOs + `InvalidModelStateResponseFactory` (400 en español con `traceId`); FluentValidation en el servicio | — |
-| 7.3 | Validador de dominio | ✅ | `FunkoRequestValidator` (duplica reglas) | — |
-| 7.4 | Mapeo con métodos de extensión | ✅ | `Mapper/FunkoMapper.cs` | — |
-| 7.5 | Longitudes BD == validator | ✅ | `HasMaxLength(200)` en BD y 200 en validadores (migración `AmpliarLongitudNombreFunko`) | — |
-| 7.6 | Mensajes de validación en español | ✅ | "El nombre es obligatorio.", "El stock no puede ser negativo."... | — |
-| 7.7 | Sin DTOs muertos | ✅ | `FunkoPatchRequestDto` y sus 7 tests eliminados | — |
-| 7.8 | `FunkoDto` no expone `IsDeleted` | ❌ | Siempre `false` por query filter | P2 |
-
-### 8. Configuración y logs
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 8.1 | `appsettings.json` + perfiles | ✅ | `appsettings.Development/Production.json` con `ConnectionStrings` y `Logging`; Serilog en `SerilogConfig` | — |
-| 8.2 | Serilog consola + fichero | ✅ | `Infrastructures/SerilogConfig.cs`: consola + `logs/funko-AAAAMMDD.log` (7 días) | — |
-| 8.3 | Log estructurado de operaciones CRUD | ✅ | `ILogger<T>` con placeholders + `UseSerilogRequestLogging` (método, ruta, estado, ms) | — |
-| 8.4 | Config por `IConfiguration` en extension methods | ✅ | `DatabaseConfig` recibe `builder.Configuration`; sin configuración estática | — |
-| 8.5 | Sin secretos ni paquetes en preview | ✅ | Serilog.AspNetCore 10.0.0, Sinks.File 7.0.0 y Sinks.Console 6.1.1 (estables) | — |
-
-### 9. Persistencia real
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 9.1 | EF Core con PostgreSQL | ✅ | `DatabaseConfig.cs` + Npgsql 10.0.3 | — |
-| 9.2 | Relación 1:N `Funko`–`Categoria` | ✅ | `HasOne/WithMany` + `Restrict` | — |
-| 9.3 | Borrado lógico con `IsDeleted` | ✅ | `HasQueryFilter(x => !x.IsDeleted)` | — |
-| 9.4 | **Migraciones** | ✅ | `Migrations/InitialCreate` | — |
-| 9.5 | Migraciones aplicadas al arrancar | ✅ | `InitializeDatabaseAsync` | — |
-| 9.6 | Datos semilla | ✅ | `HasData` (3 categorías, 5 funkos) | — |
-| 9.7 | `AsNoTracking` + `Include` | ✅ | Repositorios | — |
-| 9.8 | FK explícita (no *shadow property*) | 🟡 | `e.Property<long>("CategoriaId")` | P2 |
-| 9.9 | `IsDeleted` correcto en update | ✅ | El repositorio consulta con el filtro global: un funko borrado devuelve `null` → 404 (test en SQLite y PostgreSQL) | — |
-
-### 10–12. Seguridad, documentación y despliegue
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| 10.1 | JWT + BCrypt | ❌ | Pendiente (fase 10) | — |
-| 10.2 | Escritura autenticada; borrado solo Admin | ❌ | Pendiente (fase 10) | — |
-| 11.1 | Swagger/OpenAPI con comentarios XML | ✅ | Swashbuckle 10.2.3 + `IncludeXmlComments` | — |
-| 11.2 | Tests unitarios del servicio | ✅ | 17 casos en `FunkoServiceTests` | — |
-| 11.3 | Tests de integración con `WebApplicationFactory` | ✅ | `FunkosEndpointsPostgreTests`: 9 casos sobre el host real (200/201/204/400/404/409/422) | — |
-| 12.1 | Dockerfile multi-etapa + compose | ❌ | Pendiente (fase 12) | — |
-
-### Transversales: estilo del profe
-
-| # | Requisito | Estado | Evidencia | Prio |
-|---|---|---|---|---|
-| T.1 | Carpetas en plural (`Controllers/`, `Dtos/`, `Mappers/`, `Validators/`) | ✅ | `Controllers/`, `Dtos/`, `Mappers/`, `Validators/`, `Infrastructures/` | — |
-| T.2 | `Models/` para dominio y `Data/` para `DbContext` | ✅ | `Models/` + `Data/AppDbContext.cs` | — |
-| T.3 | DI explícito por `Infrastructures/*Config.cs` | ✅ | `RepositoriesConfig`, `ServicesConfig`, `ValidatorsConfig` + `DatabaseConfig` | — |
-| T.4 | XML docs en todo miembro público + `GenerateDocumentationFile` | ✅ | 0 avisos CS1591; `Funko-Api.xml` generado | — |
-| T.5 | Tests en `Unit/` e `Integration/` + `TestCategories.cs` | ✅ | `Unit/` (70), `Integration/TestContainers/` (20), `TestCategories.cs` | — |
-| T.6 | Integración con `[Category("Integration")]` | ✅ | Fixtures con `TestCategories.Integration` | — |
-| T.7 | Nombres de test `Metodo_Escenario_Resultado` | ✅ | En español | — |
-| T.8 | FluentAssertions (no `Assert.AreEqual`) | ✅ | Toda la suite | — |
-| T.9 | Mensajes de error y log en español | ✅ | Dominio, validaciones y logs en español | — |
-| T.10 | Conventional Commits en español | 🟡 | Últimos commits sí; los antiguos no | P3 |
-| T.11 | Ramas `main` / `develop` / `feature-*` con merge explícito | 🟡 | `feature/Controller`; sin `main` ni merges | P3 |
-| T.12 | Tags `vX.Y.Z` | ❌ | Ninguno | P3 |
-| T.13 | Paquetes solo de tests en el proyecto de tests | ✅ | `FluentAssertions` solo en `Funko-Api.Test` | — |
-| T.14 | Versiones alineadas con la guía | ✅ | `SSH.NET 2026.0.0` fijado; 0 avisos NU1903 | — |
-
-### Resumen
-
-| Ámbito | ✅ | 🟡 | ❌ |
-|---|---|---|---|
-| Fases 1–9 + entregables (64 items) | 53 | 3 | 8 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 67 | 5 | 12 |
-
-> Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). Las
-> fases 1–9 quedan cerradas; lo que resta es estilo P2/P3.
-
-**Nota orientativa: 7/10** (P0 cerrado).
-
-| Escenario | Nota |
-|---|---|
-| Ahora mismo (P0 cerrado) | 7/10 |
-| P0 + P1 | 8/10 |
-| P0 + P1 + P2/P3 | 9–10/10 |
-
-### Plan de ataque
-
-**P0 — bloqueantes (cerrado ✅)**
-
-- [x] Arreglar `CS1061` con `ICategoriaService`
-- [x] `dotnet build` en verde y `dotnet test` ejecutando (90/90)
-- [x] Paquete `Npgsql.EntityFrameworkCore.PostgreSQL` en la API
-- [x] `Infrastructure/DatabaseConfig.cs` + `AddDbContext` + `ConnectionStrings`
-- [x] Migración `InitialCreate` y aplicación al arrancar
-- [x] Endpoint `GET /api/funkos/buscar?nombre=...`
-- [x] README: fases 1, 2 y 4
-- [x] `.gitignore` + `git rm -r --cached` de `bin/`, `obj/` y `.idea/`
-
-**P1 — correctness (dos sesiones)**
-
-- [x] Repositorios devuelven entidad/`null`; el servicio decide el error
-- [x] Una sola extensión `ToHttpResult<T>()`
-- [x] `HasMaxLength` == `MaximumLength`
-- [x] `ConflictError` (409) y `BusinessRuleError` (422)
-- [x] `GlobalExceptionHandler` con Problem Details + `traceId`
-- [x] Serilog real (`Serilog.AspNetCore`, consola + fichero)
-- [x] Borrar `FunkoConfig`, `UpdateFrom`, `UnitTest1`
-- [x] Borrar `FunkoPatchRequestDto` (el PATCH usa DTOs tipados)
-- [x] Corregir el `IsDeleted` del update
-- [x] `public partial class Program;` + test de integración
-
-**P2 — estilo (tres sesiones)**
-
-- [ ] Carpetas en plural + `Data/` + `Models/`
-- [x] DI por extension methods (adiós Scrutor)
-- [x] Español en validaciones; XML docs; `[ProducesResponseType]`; Swagger UI en `/swagger`
-- [x] Tests a `Unit/` + `Integration/` con categorías
-- [x] `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`
-- [ ] `doc/` numerada
-
-**P3 — flujo (cierre)**
-
-- [ ] Commits atómicos con Conventional Commits
-- [ ] `main` + merge explícito desde `develop`
-- [ ] Tag `v0.9.0` al cerrar la fase 9
-
-### Cómo usar esta checklist
-
-1. Cada vez que se cierre un punto, cambiar el estado (`🟡` → `✅`).
-2. Regla de oro: **no se pasa a la fase siguiente con un P0 abierto**.
-3. Antes de cada commit: `dotnet build` + `dotnet test --filter "FullyQualifiedName!~Postgre"`.
-
----
-
-## 👤 Autor y licencia
+## 📄 Licencia y autor
 
 Proyecto educativo de **Antukiller** para 2º de DAW.
 
@@ -600,3 +540,5 @@ Material docente basado en las guías y repositorios de
 (licencia [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)).
 El código se ha escrito para este proyecto; las ideas, estructura y convenciones
 proceden de su temario y de `TiendaDawApi-NetCore`.
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es"><img alt="Licencia de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
