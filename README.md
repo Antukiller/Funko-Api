@@ -230,7 +230,11 @@ Arquitectura en capas: **Controller → Service → Repository → EF Core**.
 
 ```
 Funko-Api/                          # raíz del repositorio
+├── .editorconfig
 ├── .gitignore
+├── Directory.Build.props
+├── Directory.Packages.props
+├── global.json
 ├── README.md
 └── Funko-Api/                      # solución
     ├── Funko-Api.slnx
@@ -318,6 +322,14 @@ compacto para desarrollo) y `logs/funko-AAAAMMDD.log` (rotación diaria, 7 días
 Los niveles de `Microsoft` y EF Core se suben a `Warning` para que el log de
 negocio no se ahogue entre trazas del framework. `UseSerilogRequestLogging()`
 deja una línea por petición con método, ruta, código de estado y milisegundos.
+
+### Configuración de build centralizada
+
+`global.json` fija el SDK 10.0.101 con `rollForward: latestFeature`,
+`Directory.Build.props` aplica `LangVersion 14`, `Nullable`, `ImplicitUsings` y
+`TreatWarningsAsErrors` a todos los proyectos, y `Directory.Packages.props`
+centraliza las versiones (Central Package Management): los `.csproj` no llevan
+`Version`. `.editorconfig` fija LF, 4 espacios y el estilo de C#.
 
 ### Inyección de dependencias explícita
 
@@ -507,15 +519,15 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 | T.10 | Conventional Commits en español | 🟡 | Últimos commits sí; los antiguos no | P3 |
 | T.11 | Ramas `main` / `develop` / `feature-*` con merge explícito | 🟡 | `feature/Controller`; sin `main` ni merges | P3 |
 | T.12 | Tags `vX.Y.Z` | ❌ | Ninguno | P3 |
-| T.13 | Paquetes solo de tests en el proyecto de tests | ❌ | `FluentAssertions` está en la API | P2 |
-| T.14 | Versiones alineadas con la guía | 🟡 | `Testcontainers 4.3` arrastra `SSH.NET` vulnerable (NU1903) | P2 |
+| T.13 | Paquetes solo de tests en el proyecto de tests | ✅ | `FluentAssertions` solo en `Funko-Api.Test` | — |
+| T.14 | Versiones alineadas con la guía | ✅ | `SSH.NET 2026.0.0` fijado; 0 avisos NU1903 | — |
 
 ### Resumen
 
 | Ámbito | ✅ | 🟡 | ❌ |
 |---|---|---|---|
 | Fases 1–9 + entregables (64 items) | 51 | 4 | 9 |
-| Total (incluye fases 10–12 y estilo, 84 items) | 60 | 8 | 16 |
+| Total (incluye fases 10–12 y estilo, 84 items) | 62 | 7 | 15 |
 
 > Todas las ❌ de las fases 10–12 son trabajo futuro (10.1, 10.2 y 12.1). De
 > las fases 1–9 solo queda la UI de Swagger (11.1); el resto son P2/P3 de estilo.
@@ -560,7 +572,7 @@ de PostgreSQL de desarrollo se arranca a mano con el comando de la sección
 - [x] DI por extension methods (adiós Scrutor)
 - [ ] Español en validaciones; XML docs; `[ProducesResponseType]`; Swagger UI en `/swagger`
 - [ ] Tests a `Unit/` + `Integration/` con categorías
-- [ ] `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`
+- [x] `global.json`, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`
 - [ ] `doc/` numerada
 
 **P3 — flujo (cierre)**
