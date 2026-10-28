@@ -12,7 +12,6 @@ namespace Funko_Api.Dtos;
 /// <param name="CategoriaName">Nombre de la categoría.</param>
 /// <param name="CreatedAt">Fecha de creación en UTC.</param>
 /// <param name="UpdatedAt">Fecha de la última modificación en UTC.</param>
-/// <param name="IsDeleted">Indica si está borrado lógicamente.</param>
 public record FunkoDto(
     long Id,
     string Name,
@@ -20,6 +19,5 @@ public record FunkoDto(
     int Stock,
     string CategoriaName,
     DateTime CreatedAt,
-    DateTime UpdatedAt,
-    bool IsDeleted
+    DateTime UpdatedAt
 );

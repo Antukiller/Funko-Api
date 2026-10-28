@@ -16,6 +16,9 @@ public class Funko {
     /// <summary>Unidades disponibles en stock.</summary>
     public int Stock { get; set; }
 
+    /// <summary>Identificador de la categoría a la que pertenece.</summary>
+    public long CategoriaId { get; set; }
+
     /// <summary>Categoría a la que pertenece el funko.</summary>
     public required Categoria Categoria { get; set; } = null!;
 

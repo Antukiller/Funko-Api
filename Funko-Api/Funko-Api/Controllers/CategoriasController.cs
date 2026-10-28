@@ -28,6 +28,6 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     [HttpGet("{id:long}")]
     [ProducesResponseType(typeof(CategoriaDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(long id) =>
+    public async Task<ActionResult<CategoriaDto>> GetById(long id) =>
         (await service.GetByIdAsync(id)).ToHttpResult();
 }

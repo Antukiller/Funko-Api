@@ -28,9 +28,10 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [HttpGet("buscar")]
     [ProducesResponseType(typeof(IReadOnlyList<FunkoDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SearchByName([FromQuery] string nombre) {
+    public async Task<ActionResult<IEnumerable<FunkoDto>>> SearchByName([FromQuery] string nombre) {
         if (string.IsNullOrWhiteSpace(nombre))
-            return ValidationError.Create("El nombre de búsqueda no puede estar vacío.").ToHttpResult();
+            return ValidationError.Create("El nombre de búsqueda no puede estar vacío.")
+                .ToHttpResult<IEnumerable<FunkoDto>>();
 
         return Ok(await service.SearchByNameAsync(nombre));
     }
@@ -43,7 +44,7 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [HttpGet("{id:long}", Name = nameof(GetById))]
     [ProducesResponseType(typeof(FunkoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(long id) =>
+    public async Task<ActionResult<FunkoDto>> GetById(long id) =>
         (await service.GetByIdAsync(id)).ToHttpResult();
 
     /// <summary>
@@ -56,10 +57,10 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create([FromBody] CreateFunkoDto request) {
+    public async Task<ActionResult<FunkoDto>> Create([FromBody] CreateFunkoDto request) {
         var result = await service.CreateAsync(request);
         if (result.IsFailure)
-            return result.Error.ToHttpResult();
+            return result.Error.ToHttpResult<FunkoDto>();
 
         return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value);
     }
@@ -75,7 +76,7 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdateFunkoDto request) =>
+    public async Task<ActionResult<FunkoDto>> Update(long id, [FromBody] UpdateFunkoDto request) =>
         (await service.UpdateAsync(id, request)).ToHttpResult();
 
     /// <summary>
@@ -88,10 +89,10 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [ProducesResponseType(typeof(FunkoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PatchPrice(long id, [FromBody] decimal precio) {
+    public async Task<ActionResult<FunkoDto>> PatchPrice(long id, [FromBody] decimal precio) {
         var existente = await service.GetByIdAsync(id);
         if (existente.IsFailure)
-            return existente.Error.ToHttpResult();
+            return existente.Error.ToHttpResult<FunkoDto>();
 
         var funko = existente.Value;
         var result = await service.UpdateAsync(id, new UpdateFunkoDto {
@@ -114,7 +115,7 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> PatchStock(long id, [FromBody] int cantidad) =>
+    public async Task<ActionResult<FunkoDto>> PatchStock(long id, [FromBody] int cantidad) =>
         (await service.AdjustStockAsync(id, cantidad)).ToHttpResult();
 
     /// <summary>
@@ -125,7 +126,7 @@ public class FunkosController(IFunkoService service) : ControllerBase {
     [HttpDelete("{id:long}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id) {
+    public async Task<ActionResult> Delete(long id) {
         var result = await service.DeleteAsync(id);
         return result.IsSuccess ? NoContent() : result.Error.ToHttpResult();
     }

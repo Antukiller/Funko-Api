@@ -29,11 +29,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasPrecision(20, 2);
             e.Property(x => x.Stock)
                 .IsRequired();
-            e.Property<long>("CategoriaId")
+            e.Property(x => x.CategoriaId)
                 .IsRequired();
             e.HasOne(x => x.Categoria)
                 .WithMany(x => x.Funkos)
-                .HasForeignKey("CategoriaId")
+                .HasForeignKey(x => x.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
             e.Property(x => x.CreatedAt)
                 .IsRequired();

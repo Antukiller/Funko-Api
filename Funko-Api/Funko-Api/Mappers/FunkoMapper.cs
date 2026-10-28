@@ -19,8 +19,7 @@ public static class FunkoMapper {
         funko.Stock,
         funko.Categoria.Name,
         funko.CreatedAt,
-        funko.UpdatedAt,
-        funko.IsDeleted);
+        funko.UpdatedAt);
 
     /// <summary>
     /// Convierte un DTO de creación en una entidad de dominio.
